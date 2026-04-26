@@ -24,9 +24,14 @@ function getAbsApiBaseUrl(): string | undefined {
   if (!baseUrl || typeof baseUrl !== 'string') {
     return undefined
   }
-  return baseUrl.replace(/\/+$/, '').replace(/\/dataflow$/, '')
+  return baseUrl.replace(/\/+$/, '')
 }
-
+async function fetchSpecificMetric(dataflow: string, key: string): Promise<AbsSeriesRecord[]> {
+  const response = await fetchAbsDataApi<AbsJsonDataResponse>(
+    `/data/${dataflow}/${key}?format=jsondata&detail=full`
+  );
+  return parseAbsSeriesRecords(response);
+}
 export async function fetchAbsDataApi<T>(
   endpoint: string,
   init?: RequestInit,
@@ -107,9 +112,10 @@ function selectValue(
   return best?.value
 }
 
-async function fetchDataflowSeries(dataflowId: string): Promise<AbsSeriesRecord[]> {
+async function fetchDataflowSeries(dataflowId: string, key: string = 'all'): Promise<AbsSeriesRecord[]> {
+  //specific keys
   const response = await fetchAbsDataApi<AbsJsonDataResponse>(
-    `/data/${dataflowId}/all?format=jsondata`,
+    `/data/${dataflowId}/${key}?format=jsondata&detail=full`
   )
   return parseAbsSeriesRecords(response)
 }
@@ -143,11 +149,20 @@ export async function getMetricSnapshotFromAbs(
   const locationTerms = getLocationTerms(locationId)
   const [lfRecords, cpiRecords, erpRecords, baRecords, regionalRecords] =
     await Promise.all([
-      fetchDataflowSeries('LF'),
-      fetchDataflowSeries('CPI'),
-      fetchDataflowSeries('ERP_QUARTERLY'),
-      fetchDataflowSeries('BA'),
-      fetchDataflowSeries('ABS_REGIONAL_ASGS2016'),
+      // LF Key: 1 (Unempl Rate) . 1 (Total) . 15 (Age 15+) . 2 (Victoria) . M (Monthly)
+      fetchSpecificMetric('LF', '1.1.15.2.M'), 
+      
+      // CPI Key: 1 (Index) . 10001 (All Groups) . 10 (Melbourne) . Q (Quarterly)
+      fetchSpecificMetric('CPI', '1.10001.10.Q'), 
+
+      // ERP: Population for Victoria
+      fetchSpecificMetric('ERP_QUARTERLY', '1.2.Q'), 
+
+      // Building Approvals for Victoria
+      fetchSpecificMetric('BA', '1.1.2.M'), 
+
+      // Regional data (This is the one that actually contains Suburb/LGA data)
+      fetchSpecificMetric('ABS_REGIONAL_ASGS2016', 'all')
     ])
 
   const population = selectValue(erpRecords, year, [...locationTerms, 'PERSON'])
