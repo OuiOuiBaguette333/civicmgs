@@ -1,4 +1,4 @@
-import { locationCatalog } from '../../../data/locationCatalog'
+import locationsData from '../../../data/mock/locations.vic.json'
 import type { LocationRecord } from '../../../types'
 
 interface LocationSearchPanelProps {
@@ -10,12 +10,12 @@ export function LocationSearchPanel({
   selectedLocationId,
   onSelectLocation,
 }: LocationSearchPanelProps) {
-  const locations = locationCatalog as LocationRecord[]
+  const locations = locationsData as LocationRecord[]
 
   return (
     <section className="location-panel">
       <h2>Suburb input</h2>
-      <p>Select a Melbourne/Victoria suburb from live ABS-backed options.</p>
+      <p>Select a Melbourne/Victoria suburb from the mock dataset.</p>
       <label className="location-panel__label" htmlFor="location-select">
         Suburb or postcode
       </label>

@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { locationCatalog } from '../../../data/locationCatalog'
-import { getMetricSnapshotsForLocation } from '../../../services/absApiService'
+import locationsData from '../../../data/mock/locations.vic.json'
+import suburbMetricsData from '../../../data/mock/suburbMetrics.mock.json'
 import type { LocationRecord, MetricSnapshot } from '../../../types'
 import { applyScenarioAdjustments } from '../../simulation/simulationEngine'
 import { MetricCard } from './MetricCard'
@@ -50,107 +49,62 @@ export function MetricsComparisonSection({
   educationFundingChange,
   infrastructureFundingChange,
 }: MetricsComparisonSectionProps) {
-  const locations = locationCatalog as LocationRecord[]
-  const selectedLocation = locations.find((location) => location.locationId === locationId)
-  const [locationSnapshots, setLocationSnapshots] = useState<MetricSnapshot[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const locations = locationsData as LocationRecord[]
+  const suburbMetrics = suburbMetricsData as MetricSnapshot[]
 
-  useEffect(() => {
-    let cancelled = false
-
-    async function loadAbsSnapshots() {
-      setIsLoading(true)
-      setErrorMessage(null)
-
-      try {
-        const snapshots = await getMetricSnapshotsForLocation(locationId, [
-          year - 3,
-          year - 2,
-          year - 1,
-          year,
-        ])
-        if (!cancelled) {
-          setLocationSnapshots(snapshots)
-        }
-      } catch (error) {
-        if (!cancelled) {
-          setLocationSnapshots([])
-          setErrorMessage(
-            error instanceof Error ? error.message : 'Unable to load ABS data.',
-          )
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false)
-        }
-      }
-    }
-
-    void loadAbsSnapshots()
-
-    return () => {
-      cancelled = true
-    }
-  }, [locationId, year])
-
-  const selectedSnapshot = locationSnapshots.find(
-    (snapshot) => snapshot.locationId === locationId && snapshot.year === year,
+  const selectedLocation = locations.find(
+    (location) => location.locationId === locationId,
+  )
+  const locationSnapshots = suburbMetrics.filter(
+    (snapshot) => snapshot.locationId === locationId,
+  )
+  const selectedSnapshot = suburbMetrics.find(
+    (snapshot) =>
+      snapshot.locationId === locationId && snapshot.year === year,
   )
 
-  const suburbAverageSnapshot = useMemo<MetricSnapshot | undefined>(() => {
-    if (locationSnapshots.length === 0) {
-      return undefined
-    }
-    return {
-      locationId,
-      year,
-      demographics: {
-        populationTotal: average(
-          locationSnapshots.map((snapshot) => snapshot.demographics.populationTotal),
-        ),
-        medianAge: average(
-          locationSnapshots.map((snapshot) => snapshot.demographics.medianAge),
-        ),
-        householdMedianIncome: average(
-          locationSnapshots.map(
-            (snapshot) => snapshot.demographics.householdMedianIncome,
-          ),
-        ),
-        unemploymentRatePct: average(
-          locationSnapshots.map((snapshot) => snapshot.demographics.unemploymentRatePct),
-        ),
-      },
-      funding: {
-        perCapitaFundingAud: average(
-          locationSnapshots.map((snapshot) => snapshot.funding.perCapitaFundingAud),
-        ),
-        communityProgramsFundingAud: average(
-          locationSnapshots.map(
-            (snapshot) => snapshot.funding.communityProgramsFundingAud,
-          ),
-        ),
-        infrastructureFundingAud: average(
-          locationSnapshots.map((snapshot) => snapshot.funding.infrastructureFundingAud),
-        ),
-      },
-    }
-  }, [locationSnapshots, locationId, year])
-
-  if (isLoading) {
+  if (!selectedLocation || !selectedSnapshot || locationSnapshots.length === 0) {
     return (
       <section className="metrics-section">
-        <p>Loading ABS metrics...</p>
+        <p>Mock data is unavailable for this static dashboard view.</p>
       </section>
     )
   }
 
-  if (!selectedLocation || !selectedSnapshot || !suburbAverageSnapshot) {
-    return (
-      <section className="metrics-section">
-        <p>{errorMessage ?? 'No ABS data available for this location and year.'}</p>
-      </section>
-    )
+  const suburbAverageSnapshot: MetricSnapshot = {
+    locationId,
+    year,
+    demographics: {
+      populationTotal: average(
+        locationSnapshots.map((snapshot) => snapshot.demographics.populationTotal),
+      ),
+      medianAge: average(
+        locationSnapshots.map((snapshot) => snapshot.demographics.medianAge),
+      ),
+      householdMedianIncome: average(
+        locationSnapshots.map(
+          (snapshot) => snapshot.demographics.householdMedianIncome,
+        ),
+      ),
+      unemploymentRatePct: average(
+        locationSnapshots.map((snapshot) => snapshot.demographics.unemploymentRatePct),
+      ),
+    },
+    funding: {
+      perCapitaFundingAud: average(
+        locationSnapshots.map((snapshot) => snapshot.funding.perCapitaFundingAud),
+      ),
+      communityProgramsFundingAud: average(
+        locationSnapshots.map(
+          (snapshot) => snapshot.funding.communityProgramsFundingAud,
+        ),
+      ),
+      infrastructureFundingAud: average(
+        locationSnapshots.map(
+          (snapshot) => snapshot.funding.infrastructureFundingAud,
+        ),
+      ),
+    },
   }
 
   const adjustedSnapshot = applyScenarioAdjustments(selectedSnapshot, {
