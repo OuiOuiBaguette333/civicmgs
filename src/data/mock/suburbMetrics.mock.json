@@ -1,0 +1,482 @@
+[
+  {
+    "locationId": "au-vic-carlton-3053",
+    "year": 2021,
+    "demographics": {
+      "populationTotal": 21500,
+      "medianAge": 27.6,
+      "householdMedianIncome": 88500,
+      "unemploymentRatePct": 6.1
+    },
+    "funding": {
+      "perCapitaFundingAud": 1220,
+      "communityProgramsFundingAud": 9200000,
+      "infrastructureFundingAud": 33400000
+    }
+  },
+  {
+    "locationId": "au-vic-carlton-3053",
+    "year": 2022,
+    "demographics": {
+      "populationTotal": 22100,
+      "medianAge": 27.7,
+      "householdMedianIncome": 91500,
+      "unemploymentRatePct": 5.7
+    },
+    "funding": {
+      "perCapitaFundingAud": 1260,
+      "communityProgramsFundingAud": 9700000,
+      "infrastructureFundingAud": 35200000
+    }
+  },
+  {
+    "locationId": "au-vic-carlton-3053",
+    "year": 2023,
+    "demographics": {
+      "populationTotal": 22700,
+      "medianAge": 27.8,
+      "householdMedianIncome": 94900,
+      "unemploymentRatePct": 5.3
+    },
+    "funding": {
+      "perCapitaFundingAud": 1300,
+      "communityProgramsFundingAud": 10200000,
+      "infrastructureFundingAud": 36900000
+    }
+  },
+  {
+    "locationId": "au-vic-carlton-3053",
+    "year": 2024,
+    "demographics": {
+      "populationTotal": 23300,
+      "medianAge": 27.9,
+      "householdMedianIncome": 98500,
+      "unemploymentRatePct": 5.1
+    },
+    "funding": {
+      "perCapitaFundingAud": 1340,
+      "communityProgramsFundingAud": 10800000,
+      "infrastructureFundingAud": 38800000
+    }
+  },
+  {
+    "locationId": "au-vic-footscray-3011",
+    "year": 2021,
+    "demographics": {
+      "populationTotal": 17600,
+      "medianAge": 33.0,
+      "householdMedianIncome": 84200,
+      "unemploymentRatePct": 6.6
+    },
+    "funding": {
+      "perCapitaFundingAud": 1160,
+      "communityProgramsFundingAud": 8100000,
+      "infrastructureFundingAud": 30100000
+    }
+  },
+  {
+    "locationId": "au-vic-footscray-3011",
+    "year": 2022,
+    "demographics": {
+      "populationTotal": 18000,
+      "medianAge": 33.0,
+      "householdMedianIncome": 86900,
+      "unemploymentRatePct": 6.0
+    },
+    "funding": {
+      "perCapitaFundingAud": 1190,
+      "communityProgramsFundingAud": 8500000,
+      "infrastructureFundingAud": 31700000
+    }
+  },
+  {
+    "locationId": "au-vic-footscray-3011",
+    "year": 2023,
+    "demographics": {
+      "populationTotal": 18400,
+      "medianAge": 33.1,
+      "householdMedianIncome": 89900,
+      "unemploymentRatePct": 5.7
+    },
+    "funding": {
+      "perCapitaFundingAud": 1230,
+      "communityProgramsFundingAud": 8900000,
+      "infrastructureFundingAud": 33400000
+    }
+  },
+  {
+    "locationId": "au-vic-footscray-3011",
+    "year": 2024,
+    "demographics": {
+      "populationTotal": 18800,
+      "medianAge": 33.1,
+      "householdMedianIncome": 93400,
+      "unemploymentRatePct": 5.5
+    },
+    "funding": {
+      "perCapitaFundingAud": 1270,
+      "communityProgramsFundingAud": 9400000,
+      "infrastructureFundingAud": 35300000
+    }
+  },
+  {
+    "locationId": "au-vic-dandenong-3175",
+    "year": 2021,
+    "demographics": {
+      "populationTotal": 31400,
+      "medianAge": 34.8,
+      "householdMedianIncome": 73100,
+      "unemploymentRatePct": 7.4
+    },
+    "funding": {
+      "perCapitaFundingAud": 1250,
+      "communityProgramsFundingAud": 11100000,
+      "infrastructureFundingAud": 38200000
+    }
+  },
+  {
+    "locationId": "au-vic-dandenong-3175",
+    "year": 2022,
+    "demographics": {
+      "populationTotal": 32000,
+      "medianAge": 34.9,
+      "householdMedianIncome": 75800,
+      "unemploymentRatePct": 6.9
+    },
+    "funding": {
+      "perCapitaFundingAud": 1280,
+      "communityProgramsFundingAud": 11600000,
+      "infrastructureFundingAud": 40100000
+    }
+  },
+  {
+    "locationId": "au-vic-dandenong-3175",
+    "year": 2023,
+    "demographics": {
+      "populationTotal": 32600,
+      "medianAge": 35.0,
+      "householdMedianIncome": 78900,
+      "unemploymentRatePct": 6.6
+    },
+    "funding": {
+      "perCapitaFundingAud": 1320,
+      "communityProgramsFundingAud": 12200000,
+      "infrastructureFundingAud": 42200000
+    }
+  },
+  {
+    "locationId": "au-vic-dandenong-3175",
+    "year": 2024,
+    "demographics": {
+      "populationTotal": 33200,
+      "medianAge": 35.1,
+      "householdMedianIncome": 82200,
+      "unemploymentRatePct": 6.3
+    },
+    "funding": {
+      "perCapitaFundingAud": 1360,
+      "communityProgramsFundingAud": 12800000,
+      "infrastructureFundingAud": 44400000
+    }
+  },
+  {
+    "locationId": "au-vic-box-hill-3128",
+    "year": 2021,
+    "demographics": {
+      "populationTotal": 13900,
+      "medianAge": 36.9,
+      "householdMedianIncome": 103200,
+      "unemploymentRatePct": 4.5
+    },
+    "funding": {
+      "perCapitaFundingAud": 1060,
+      "communityProgramsFundingAud": 6500000,
+      "infrastructureFundingAud": 25100000
+    }
+  },
+  {
+    "locationId": "au-vic-box-hill-3128",
+    "year": 2022,
+    "demographics": {
+      "populationTotal": 14200,
+      "medianAge": 37.0,
+      "householdMedianIncome": 106800,
+      "unemploymentRatePct": 4.2
+    },
+    "funding": {
+      "perCapitaFundingAud": 1090,
+      "communityProgramsFundingAud": 6900000,
+      "infrastructureFundingAud": 26400000
+    }
+  },
+  {
+    "locationId": "au-vic-box-hill-3128",
+    "year": 2023,
+    "demographics": {
+      "populationTotal": 14500,
+      "medianAge": 37.0,
+      "householdMedianIncome": 110700,
+      "unemploymentRatePct": 4.0
+    },
+    "funding": {
+      "perCapitaFundingAud": 1130,
+      "communityProgramsFundingAud": 7300000,
+      "infrastructureFundingAud": 27800000
+    }
+  },
+  {
+    "locationId": "au-vic-box-hill-3128",
+    "year": 2024,
+    "demographics": {
+      "populationTotal": 14800,
+      "medianAge": 37.1,
+      "householdMedianIncome": 114900,
+      "unemploymentRatePct": 3.9
+    },
+    "funding": {
+      "perCapitaFundingAud": 1160,
+      "communityProgramsFundingAud": 7700000,
+      "infrastructureFundingAud": 29300000
+    }
+  },
+  {
+    "locationId": "au-vic-sunshine-3020",
+    "year": 2021,
+    "demographics": {
+      "populationTotal": 10900,
+      "medianAge": 35.8,
+      "householdMedianIncome": 76400,
+      "unemploymentRatePct": 6.9
+    },
+    "funding": {
+      "perCapitaFundingAud": 1190,
+      "communityProgramsFundingAud": 5900000,
+      "infrastructureFundingAud": 22600000
+    }
+  },
+  {
+    "locationId": "au-vic-sunshine-3020",
+    "year": 2022,
+    "demographics": {
+      "populationTotal": 11200,
+      "medianAge": 35.9,
+      "householdMedianIncome": 79000,
+      "unemploymentRatePct": 6.3
+    },
+    "funding": {
+      "perCapitaFundingAud": 1220,
+      "communityProgramsFundingAud": 6200000,
+      "infrastructureFundingAud": 23700000
+    }
+  },
+  {
+    "locationId": "au-vic-sunshine-3020",
+    "year": 2023,
+    "demographics": {
+      "populationTotal": 11500,
+      "medianAge": 36.0,
+      "householdMedianIncome": 81900,
+      "unemploymentRatePct": 6.0
+    },
+    "funding": {
+      "perCapitaFundingAud": 1250,
+      "communityProgramsFundingAud": 6500000,
+      "infrastructureFundingAud": 24900000
+    }
+  },
+  {
+    "locationId": "au-vic-sunshine-3020",
+    "year": 2024,
+    "demographics": {
+      "populationTotal": 11800,
+      "medianAge": 36.1,
+      "householdMedianIncome": 85100,
+      "unemploymentRatePct": 5.8
+    },
+    "funding": {
+      "perCapitaFundingAud": 1290,
+      "communityProgramsFundingAud": 6900000,
+      "infrastructureFundingAud": 26200000
+    }
+  },
+  {
+    "locationId": "au-vic-werribee-3030",
+    "year": 2021,
+    "demographics": {
+      "populationTotal": 49300,
+      "medianAge": 34.4,
+      "householdMedianIncome": 88700,
+      "unemploymentRatePct": 6.0
+    },
+    "funding": {
+      "perCapitaFundingAud": 1110,
+      "communityProgramsFundingAud": 9800000,
+      "infrastructureFundingAud": 37200000
+    }
+  },
+  {
+    "locationId": "au-vic-werribee-3030",
+    "year": 2022,
+    "demographics": {
+      "populationTotal": 50500,
+      "medianAge": 34.5,
+      "householdMedianIncome": 91500,
+      "unemploymentRatePct": 5.5
+    },
+    "funding": {
+      "perCapitaFundingAud": 1140,
+      "communityProgramsFundingAud": 10300000,
+      "infrastructureFundingAud": 39300000
+    }
+  },
+  {
+    "locationId": "au-vic-werribee-3030",
+    "year": 2023,
+    "demographics": {
+      "populationTotal": 51700,
+      "medianAge": 34.6,
+      "householdMedianIncome": 94700,
+      "unemploymentRatePct": 5.2
+    },
+    "funding": {
+      "perCapitaFundingAud": 1180,
+      "communityProgramsFundingAud": 10800000,
+      "infrastructureFundingAud": 41500000
+    }
+  },
+  {
+    "locationId": "au-vic-werribee-3030",
+    "year": 2024,
+    "demographics": {
+      "populationTotal": 52900,
+      "medianAge": 34.7,
+      "householdMedianIncome": 98200,
+      "unemploymentRatePct": 5.0
+    },
+    "funding": {
+      "perCapitaFundingAud": 1220,
+      "communityProgramsFundingAud": 11400000,
+      "infrastructureFundingAud": 43800000
+    }
+  },
+  {
+    "locationId": "au-vic-geelong-3220",
+    "year": 2021,
+    "demographics": {
+      "populationTotal": 27400,
+      "medianAge": 39.2,
+      "householdMedianIncome": 90200,
+      "unemploymentRatePct": 5.8
+    },
+    "funding": {
+      "perCapitaFundingAud": 1090,
+      "communityProgramsFundingAud": 8700000,
+      "infrastructureFundingAud": 32100000
+    }
+  },
+  {
+    "locationId": "au-vic-geelong-3220",
+    "year": 2022,
+    "demographics": {
+      "populationTotal": 27900,
+      "medianAge": 39.3,
+      "householdMedianIncome": 93100,
+      "unemploymentRatePct": 5.3
+    },
+    "funding": {
+      "perCapitaFundingAud": 1120,
+      "communityProgramsFundingAud": 9100000,
+      "infrastructureFundingAud": 33900000
+    }
+  },
+  {
+    "locationId": "au-vic-geelong-3220",
+    "year": 2023,
+    "demographics": {
+      "populationTotal": 28400,
+      "medianAge": 39.4,
+      "householdMedianIncome": 96500,
+      "unemploymentRatePct": 5.0
+    },
+    "funding": {
+      "perCapitaFundingAud": 1160,
+      "communityProgramsFundingAud": 9500000,
+      "infrastructureFundingAud": 35700000
+    }
+  },
+  {
+    "locationId": "au-vic-geelong-3220",
+    "year": 2024,
+    "demographics": {
+      "populationTotal": 28900,
+      "medianAge": 39.4,
+      "householdMedianIncome": 100100,
+      "unemploymentRatePct": 4.9
+    },
+    "funding": {
+      "perCapitaFundingAud": 1190,
+      "communityProgramsFundingAud": 10000000,
+      "infrastructureFundingAud": 37600000
+    }
+  },
+  {
+    "locationId": "au-vic-ballarat-3350",
+    "year": 2021,
+    "demographics": {
+      "populationTotal": 24500,
+      "medianAge": 40.7,
+      "householdMedianIncome": 82100,
+      "unemploymentRatePct": 6.2
+    },
+    "funding": {
+      "perCapitaFundingAud": 1130,
+      "communityProgramsFundingAud": 7600000,
+      "infrastructureFundingAud": 29600000
+    }
+  },
+  {
+    "locationId": "au-vic-ballarat-3350",
+    "year": 2022,
+    "demographics": {
+      "populationTotal": 24900,
+      "medianAge": 40.8,
+      "householdMedianIncome": 84700,
+      "unemploymentRatePct": 5.7
+    },
+    "funding": {
+      "perCapitaFundingAud": 1160,
+      "communityProgramsFundingAud": 8000000,
+      "infrastructureFundingAud": 31200000
+    }
+  },
+  {
+    "locationId": "au-vic-ballarat-3350",
+    "year": 2023,
+    "demographics": {
+      "populationTotal": 25300,
+      "medianAge": 40.9,
+      "householdMedianIncome": 87600,
+      "unemploymentRatePct": 5.4
+    },
+    "funding": {
+      "perCapitaFundingAud": 1190,
+      "communityProgramsFundingAud": 8400000,
+      "infrastructureFundingAud": 32900000
+    }
+  },
+  {
+    "locationId": "au-vic-ballarat-3350",
+    "year": 2024,
+    "demographics": {
+      "populationTotal": 25700,
+      "medianAge": 41.0,
+      "householdMedianIncome": 90800,
+      "unemploymentRatePct": 5.3
+    },
+    "funding": {
+      "perCapitaFundingAud": 1230,
+      "communityProgramsFundingAud": 8900000,
+      "infrastructureFundingAud": 34700000
+    }
+  }
+]

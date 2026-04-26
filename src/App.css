@@ -1,0 +1,136 @@
+.dashboard-page {
+  text-align: left;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.dashboard-page__header h1 {
+  margin: 0 0 12px;
+  font-size: 38px;
+}
+
+.dashboard-page__eyebrow {
+  margin-bottom: 8px;
+  color: var(--accent);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 13px;
+}
+
+.location-panel,
+.metrics-section,
+.scenario-panel {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.location-panel__label {
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: var(--text-h);
+}
+
+.location-panel__select {
+  width: 100%;
+  max-width: 360px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+}
+
+.metrics-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.scenario-panel {
+  text-align: left;
+}
+
+.scenario-panel h2 {
+  margin-bottom: 8px;
+}
+
+.scenario-panel > p {
+  margin-bottom: 12px;
+}
+
+.scenario-slider-row {
+  margin-bottom: 14px;
+}
+
+.scenario-slider-row:last-child {
+  margin-bottom: 0;
+}
+
+.scenario-slider-row__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  color: var(--text-h);
+}
+
+.scenario-slider-row input[type='range'] {
+  width: 100%;
+}
+
+.metrics-section__header h2 {
+  margin-bottom: 6px;
+}
+
+.metrics-section__group h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  color: var(--text-h);
+}
+
+.metrics-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.metric-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  background: var(--social-bg);
+}
+
+.metric-card__label {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.metric-card__value {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin-bottom: 6px;
+}
+
+.metric-card__average,
+.metric-card__delta {
+  font-size: 14px;
+}
+
+@media (max-width: 720px) {
+  .dashboard-page {
+    padding: 20px;
+  }
+
+  .dashboard-page__header h1 {
+    font-size: 30px;
+  }
+}

@@ -1,0 +1,58 @@
+[
+  {
+    "year": 2021,
+    "demographics": {
+      "populationTotal": 67000,
+      "medianAge": 37.3,
+      "householdMedianIncome": 97200,
+      "unemploymentRatePct": 5.7
+    },
+    "funding": {
+      "perCapitaFundingAud": 1080,
+      "communityProgramsFundingAud": 14200000,
+      "infrastructureFundingAud": 51200000
+    }
+  },
+  {
+    "year": 2022,
+    "demographics": {
+      "populationTotal": 67800,
+      "medianAge": 37.2,
+      "householdMedianIncome": 100600,
+      "unemploymentRatePct": 5.2
+    },
+    "funding": {
+      "perCapitaFundingAud": 1120,
+      "communityProgramsFundingAud": 14900000,
+      "infrastructureFundingAud": 53800000
+    }
+  },
+  {
+    "year": 2023,
+    "demographics": {
+      "populationTotal": 68600,
+      "medianAge": 37.2,
+      "householdMedianIncome": 104300,
+      "unemploymentRatePct": 4.9
+    },
+    "funding": {
+      "perCapitaFundingAud": 1160,
+      "communityProgramsFundingAud": 15600000,
+      "infrastructureFundingAud": 56600000
+    }
+  },
+  {
+    "year": 2024,
+    "demographics": {
+      "populationTotal": 69400,
+      "medianAge": 37.1,
+      "householdMedianIncome": 108100,
+      "unemploymentRatePct": 4.8
+    },
+    "funding": {
+      "perCapitaFundingAud": 1200,
+      "communityProgramsFundingAud": 16400000,
+      "infrastructureFundingAud": 59500000
+    }
+  }
+]

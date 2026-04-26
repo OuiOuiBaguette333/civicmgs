@@ -1,0 +1,66 @@
+[
+  {
+    "locationId": "au-vic-carlton-3053",
+    "suburbName": "Carlton",
+    "postcode": "3053",
+    "lga": "City of Melbourne",
+    "isMelbourneMetro": true,
+    "state": "VIC"
+  },
+  {
+    "locationId": "au-vic-footscray-3011",
+    "suburbName": "Footscray",
+    "postcode": "3011",
+    "lga": "City of Maribyrnong",
+    "isMelbourneMetro": true,
+    "state": "VIC"
+  },
+  {
+    "locationId": "au-vic-dandenong-3175",
+    "suburbName": "Dandenong",
+    "postcode": "3175",
+    "lga": "City of Greater Dandenong",
+    "isMelbourneMetro": true,
+    "state": "VIC"
+  },
+  {
+    "locationId": "au-vic-box-hill-3128",
+    "suburbName": "Box Hill",
+    "postcode": "3128",
+    "lga": "City of Whitehorse",
+    "isMelbourneMetro": true,
+    "state": "VIC"
+  },
+  {
+    "locationId": "au-vic-sunshine-3020",
+    "suburbName": "Sunshine",
+    "postcode": "3020",
+    "lga": "Brimbank City Council",
+    "isMelbourneMetro": true,
+    "state": "VIC"
+  },
+  {
+    "locationId": "au-vic-werribee-3030",
+    "suburbName": "Werribee",
+    "postcode": "3030",
+    "lga": "Wyndham City Council",
+    "isMelbourneMetro": true,
+    "state": "VIC"
+  },
+  {
+    "locationId": "au-vic-geelong-3220",
+    "suburbName": "Geelong",
+    "postcode": "3220",
+    "lga": "City of Greater Geelong",
+    "isMelbourneMetro": false,
+    "state": "VIC"
+  },
+  {
+    "locationId": "au-vic-ballarat-3350",
+    "suburbName": "Ballarat",
+    "postcode": "3350",
+    "lga": "City of Ballarat",
+    "isMelbourneMetro": false,
+    "state": "VIC"
+  }
+]
