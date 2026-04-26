@@ -28,11 +28,18 @@ function formatPercent(value: number): string {
   return `${value.toFixed(1)}%`
 }
 
-function deltaLabel(currentValue: number, baselineValue: number, suffix = ''): string {
+function deltaLabel(currentValue: number, baselineValue: number, decimalPlaces: number, suffix = ''): string {
   const difference = currentValue - baselineValue
   const direction = difference >= 0 ? 'above' : 'below'
   const magnitude = Math.abs(difference)
-  return `${magnitude.toFixed(1)}${suffix} ${direction} suburb avg`
+  return `${magnitude.toFixed(decimalPlaces)}${suffix} ${direction} suburb avg`
+}
+
+function currencyDeltaLabel(currentValue: number, baselineValue: number) {
+  const difference = currentValue - baselineValue
+  const direction = difference >= 0 ? 'above' : 'below'
+  const magnitude = Math.abs(difference)
+  return `${formatCurrency(magnitude)} ${direction} suburb avg`
 }
 
 function average(values: number[]): number {
@@ -121,6 +128,7 @@ export function MetricsComparisonSection({
       deltaLabel: deltaLabel(
         adjustedSnapshot.demographics.populationTotal,
         suburbAverageSnapshot.demographics.populationTotal,
+        0
       ),
     },
     {
@@ -130,6 +138,7 @@ export function MetricsComparisonSection({
       deltaLabel: deltaLabel(
         adjustedSnapshot.demographics.medianAge,
         suburbAverageSnapshot.demographics.medianAge,
+        1,
         ' years',
       ),
     },
@@ -137,7 +146,7 @@ export function MetricsComparisonSection({
       label: 'Household median income',
       suburbValue: formatCurrency(adjustedSnapshot.demographics.householdMedianIncome),
       vicAverageValue: formatCurrency(suburbAverageSnapshot.demographics.householdMedianIncome),
-      deltaLabel: deltaLabel(
+      deltaLabel: currencyDeltaLabel(
         adjustedSnapshot.demographics.householdMedianIncome,
         suburbAverageSnapshot.demographics.householdMedianIncome,
       ),
@@ -149,6 +158,7 @@ export function MetricsComparisonSection({
       deltaLabel: deltaLabel(
         adjustedSnapshot.demographics.unemploymentRatePct,
         suburbAverageSnapshot.demographics.unemploymentRatePct,
+        1,
         ' pp',
       ),
     },
@@ -159,7 +169,7 @@ export function MetricsComparisonSection({
       label: 'Per-capita funding',
       suburbValue: formatCurrency(adjustedSnapshot.funding.perCapitaFundingAud),
       vicAverageValue: formatCurrency(suburbAverageSnapshot.funding.perCapitaFundingAud),
-      deltaLabel: deltaLabel(
+      deltaLabel: currencyDeltaLabel(
         adjustedSnapshot.funding.perCapitaFundingAud,
         suburbAverageSnapshot.funding.perCapitaFundingAud,
       ),
@@ -172,7 +182,7 @@ export function MetricsComparisonSection({
       vicAverageValue: formatCurrency(
         suburbAverageSnapshot.funding.communityProgramsFundingAud,
       ),
-      deltaLabel: deltaLabel(
+      deltaLabel: currencyDeltaLabel(
         adjustedSnapshot.funding.communityProgramsFundingAud,
         suburbAverageSnapshot.funding.communityProgramsFundingAud,
       ),
@@ -183,7 +193,7 @@ export function MetricsComparisonSection({
       vicAverageValue: formatCurrency(
         suburbAverageSnapshot.funding.infrastructureFundingAud,
       ),
-      deltaLabel: deltaLabel(
+      deltaLabel: currencyDeltaLabel(
         adjustedSnapshot.funding.infrastructureFundingAud,
         suburbAverageSnapshot.funding.infrastructureFundingAud,
       ),
