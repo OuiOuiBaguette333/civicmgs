@@ -36,17 +36,6 @@
   color: var(--text-h);
 }
 
-.location-panel__select {
-  width: 100%;
-  max-width: 360px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--text-h);
-  font: inherit;
-}
-
 .metrics-section {
   display: flex;
   flex-direction: column;

@@ -1,10 +1,6 @@
 interface ScenarioSimulatorPanelProps {
   populationChange: number
   onPopulationChange: (value: number) => void
-  educationFundingChange: number
-  onEducationFundingChange: (value: number) => void
-  infrastructureFundingChange: number
-  onInfrastructureFundingChange: (value: number) => void
 }
 
 interface SliderRowProps {
@@ -35,10 +31,6 @@ function SliderRow({ label, value, onChange }: SliderRowProps) {
 export function ScenarioSimulatorPanel({
   populationChange,
   onPopulationChange,
-  educationFundingChange,
-  onEducationFundingChange,
-  infrastructureFundingChange,
-  onInfrastructureFundingChange,
 }: ScenarioSimulatorPanelProps) {
   return (
     <section className="scenario-panel">
@@ -49,16 +41,6 @@ export function ScenarioSimulatorPanel({
         label="Population change"
         value={populationChange}
         onChange={onPopulationChange}
-      />
-      <SliderRow
-        label="Education funding change"
-        value={educationFundingChange}
-        onChange={onEducationFundingChange}
-      />
-      <SliderRow
-        label="Infrastructure funding change"
-        value={infrastructureFundingChange}
-        onChange={onInfrastructureFundingChange}
       />
     </section>
   )

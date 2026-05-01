@@ -1,4 +1,4 @@
-interface MetricCardProps {
+export interface MetricCardProps {
   label: string
   suburbValue: string
   vicAverageValue: string
