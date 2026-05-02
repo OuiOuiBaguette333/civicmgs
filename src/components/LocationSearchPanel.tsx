@@ -3,7 +3,6 @@ import type { CSSObjectWithLabel, StylesConfig } from 'react-select'
 import type { Location } from '@types'
 import { SA2_INFO_LINK } from '@data/abs'
 
-
 interface LocationSearchPanelProps {
   selectedLocation?: Location
   onSelectLocation: (location: Location) => void
