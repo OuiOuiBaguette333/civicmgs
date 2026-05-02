@@ -1,11 +1,11 @@
 import format, { createDeltaLabel } from '@utils/format'
-import { DEMOGRAPHICS_FORMATS, DEMOGRAPHICS_LABELS, type Demographic, type Demographics } from '@utils/metrics'
+import { DEMOGRAPHICS_FORMATS, DEMOGRAPHICS_LABELS, type Demographic, type Demographics } from '@utils/demographics'
 import fetchDemographics from '@utils/fetchDemographics'
 import type { Location } from '@types'
 import { MetricCard, type MetricCardProps } from '@components/MetricCard'
 import simulate from '@utils/simulate'
 import { useEffect, useState } from 'react'
-import { VICTORIAN_AVERAGES, YEAR } from '@data/abs/meta'
+import { VICTORIAN_AVERAGES, YEAR } from '@data/abs'
 
 interface MetricsComparisonSectionProps {
   location?: Location
@@ -24,7 +24,7 @@ export function MetricsComparisonSection({
 
     if (!location) return
 
-    fetchDemographics(location.code, YEAR).then(data => {
+    fetchDemographics(location.code).then(data => {
       if (!ignore) setDemographics(data)
     })
 

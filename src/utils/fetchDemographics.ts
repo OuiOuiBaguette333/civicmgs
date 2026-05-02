@@ -1,4 +1,5 @@
-import { type Demographic, type Demographics, DEMOGRAPHICS } from '@utils/metrics'
+import { type Demographic, type Demographics, DEMOGRAPHICS } from '@utils/demographics'
+import { YEAR } from '@data/abs'
 
 type ApiResponse = {
   meta: object
@@ -8,8 +9,7 @@ type ApiResponse = {
       action: string
       links: object[]
       annotations: number[]
-      attributes: number[],
-      observations: Record<string, [number, null, null]>
+      observations: Record<string, [number, number, null, null, null]>
     }[],
     structures: [
       {
@@ -17,8 +17,27 @@ type ApiResponse = {
         names: Record<string, string>
         description: string
         descriptions: Record<string, string>
-        dimensions: object
-        attributes: string
+        dimensions: {
+          dataSet: []
+          series: []
+          observation: {
+            id: string
+            name: string
+            names: Record<string, string>
+            keyPosition: number
+            roles: string[]
+            values: {
+              id: string
+              order: number
+              name: string
+              names: Record<string, string>
+              parent?: string
+              parents?: string[]
+              annotations: number[]
+            }[]
+          }[]
+        }
+        attributes: object
         annotations: object[]
         dataSets: number[]
       }
@@ -27,38 +46,37 @@ type ApiResponse = {
   errors: []
 }
 
-const API_BASE_URL = 'https://data.api.abs.gov.au/rest/data'
+const API_BASE_URL = 'https://data.api.abs.gov.au/rest/data/ABS,ABS_REGIONAL_ASGS2021,1.5.0/EQUIV_2+LF_4+ERP_P_20+ERP_23'
 
-const DATASETS: Record<Demographic, string> = {
-  population: 'ABS,ABS_ANNUAL_ERP_ASGS2021,'
+const API_IDS: Record<Demographic, string> = {
+  population: "ERP_P_20",
+  medianAge: "ERP_23",
+  medianWeeklyHouseholdIncome: "EQUIV_2",
+  unemploymentRate: "LF_4"
 }
 
-const DEFAULT_QUERY = 'dimensionAtObservation=AllDimensions&format=jsondata'
+export default async (locationCode: string): Promise<Demographics> => {
+  const apiSearchParams = new URLSearchParams({
+    dimensionAtObservation: "AllDimensions",
+    startPeriod: YEAR.toString(),
+    endPeriod: YEAR.toString(),
+    format: "jsondata",
+  })
 
-const buildUrl = (locationCode: string, metric: Demographic, year: number) => {
-  const searchParams = new URLSearchParams(DEFAULT_QUERY)
-  searchParams.append("startPeriod", year.toString())
-  searchParams.append("endPeriod", year.toString())
+  const apiUrl = `${API_BASE_URL}.SA2.${locationCode}.A?${apiSearchParams}`
 
-  return `${API_BASE_URL}/${DATASETS[metric]}/.SA2.${locationCode}.A?${searchParams.toString()}`
-}
+  const apiResponse = await fetch(apiUrl)
+  const apiData: ApiResponse = await apiResponse.json()
 
-const fetchMetric = async (locationCode: string, metric: Demographic, year: number) => {
-  const url = buildUrl(locationCode, metric, year)
-  const response = await fetch(url)
-  const data: ApiResponse = await response.json()
-  
-  return data.data.dataSets[0].observations['0:0:0:0:0'][0]
-}
+  const measures = apiData.data.structures[0].dimensions.observation[0].values
+  const observations = apiData.data.dataSets[0].observations
 
-export default async (locationCode: string, year: number): Promise<Demographics> => {
-  const metricsPromises = DEMOGRAPHICS.map(metric => fetchMetric(locationCode, metric, year))
-  const resolvedMetricsPromises = await Promise.all(metricsPromises)
+  const demographicsEntries = DEMOGRAPHICS.map<[Demographic, number]>(demographic => {
+    const measureIndex = measures.findIndex(({ id }) => id === API_IDS[demographic])
+    const observationKey = `${measureIndex}:0:0:0:0`
+    const [ value ] = observations[observationKey]
+    return [demographic, value]
+  })
 
-  return resolvedMetricsPromises.reduce<Demographics>((accumulator, metric, index) => {
-    return {
-      ...accumulator,
-      [DEMOGRAPHICS[index]]: metric
-    }
-  }, {} as Demographics)
+  return Object.fromEntries(demographicsEntries) as Record <Demographic, number>
 }

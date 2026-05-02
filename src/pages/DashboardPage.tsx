@@ -1,4 +1,4 @@
-import { DEMOGRAPHICS_LABELS, ZEROED_DEMOGRAPHICS } from '@utils/metrics'
+import { DEMOGRAPHICS_LABELS, ZEROED_CHANGEABLE_DEMOGRAPHICS } from '@utils/demographics'
 import type { Location } from '@types'
 import { LocationSearchPanel } from '@components/LocationSearchPanel'
 import { MetricsComparisonSection } from '@components/MetricsComparisonSection'
@@ -7,7 +7,7 @@ import { useState } from 'react'
 
 export function DashboardPage() {
   const [selectedLocation, setSelectedLocation] = useState<Location | undefined>()
-  const [demographicsChange, setDemographicsChange] = useState(ZEROED_DEMOGRAPHICS)
+  const [demographicsChange, setDemographicsChange] = useState(ZEROED_CHANGEABLE_DEMOGRAPHICS)
 
   return (
     <main className="dashboard-page">
