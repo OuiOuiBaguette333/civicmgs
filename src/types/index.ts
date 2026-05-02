@@ -1,1 +1,4 @@
-export * from './location'
+export interface Location {
+  code: string
+  name: string
+}

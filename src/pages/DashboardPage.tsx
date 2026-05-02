@@ -1,12 +1,13 @@
-import { useState } from 'react'
+import { DEMOGRAPHICS_LABELS, ZEROED_DEMOGRAPHICS } from '@utils/metrics'
+import type { Location } from '@types'
 import { LocationSearchPanel } from '@components/LocationSearchPanel'
 import { MetricsComparisonSection } from '@components/MetricsComparisonSection'
-import { ScenarioSimulatorPanel } from '@components/ScenarioSimulatorPanel'
-import type { Location } from '@types'
+import { SimulatorPanel } from '@components/SimulatorPanel'
+import { useState } from 'react'
 
 export function DashboardPage() {
   const [selectedLocation, setSelectedLocation] = useState<Location | undefined>()
-  const [populationChange, setPopulationChange] = useState(0)
+  const [demographicsChange, setDemographicsChange] = useState(ZEROED_DEMOGRAPHICS)
 
   return (
     <main className="dashboard-page">
@@ -21,14 +22,15 @@ export function DashboardPage() {
         onSelectLocation={setSelectedLocation}
       />
 
-      <ScenarioSimulatorPanel
-        populationChange={populationChange}
-        onPopulationChange={setPopulationChange}
+      <SimulatorPanel
+        simulatedChanges={demographicsChange}
+        onSimulationChange={setDemographicsChange}
+        labels={DEMOGRAPHICS_LABELS}
       />
 
       <MetricsComparisonSection
         location={selectedLocation}
-        populationChange={populationChange}
+        simulatedDemographicsChanges={demographicsChange}
       />
     </main>
   )

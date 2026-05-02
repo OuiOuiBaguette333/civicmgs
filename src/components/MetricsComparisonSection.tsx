@@ -1,30 +1,31 @@
-import { createDeltaLabel, formatNumber } from '@utils/formatters'
-import fetchABSData, { type ABSData } from '@utils/fetchABSData'
+import format, { createDeltaLabel } from '@utils/format'
+import { DEMOGRAPHICS_FORMATS, DEMOGRAPHICS_LABELS, type Demographic, type Demographics } from '@utils/metrics'
+import fetchDemographics from '@utils/fetchDemographics'
 import type { Location } from '@types'
-import { MetricCard, type MetricCardProps } from './MetricCard'
+import { MetricCard, type MetricCardProps } from '@components/MetricCard'
 import simulate from '@utils/simulate'
 import { useEffect, useState } from 'react'
 import { VICTORIAN_AVERAGES, YEAR } from '@data/abs/meta'
 
 interface MetricsComparisonSectionProps {
   location?: Location
-  populationChange: number
+  simulatedDemographicsChanges: Demographics
 }
 
 export function MetricsComparisonSection({
   location,
-  populationChange,
+  simulatedDemographicsChanges,
 }: MetricsComparisonSectionProps) {
-  const [absData, setAbsData] = useState<ABSData | null>(null)
+  const [demographics, setDemographics] = useState<Demographics | null>(null)
 
   useEffect(() => {
     let ignore = false
-    setAbsData(null)
+    setDemographics(null)
 
     if (!location) return
 
-    fetchABSData(location.code, YEAR).then(data => {
-      if (!ignore) setAbsData(data)
+    fetchDemographics(location.code, YEAR).then(data => {
+      if (!ignore) setDemographics(data)
     })
 
     return () => {
@@ -32,7 +33,7 @@ export function MetricsComparisonSection({
     }
   }, [location])
 
-  if (!location || !absData) {
+  if (!location || !demographics) {
     return (
       <section className="metrics-section">
         <p>{location ? 'Loading...' : 'Please select a suburb'}</p>
@@ -40,22 +41,20 @@ export function MetricsComparisonSection({
     )
   }
 
-  const simulatedAbsData: ABSData = {
-    population: simulate(absData.population, populationChange)
-  }
+  const simulatedDemographicsEntries = Object
+    .entries(demographics)
+    .map(([metric, value]) => [metric, simulate(value, simulatedDemographicsChanges[metric as Demographic])] as [Demographic, number])
 
-  const demographicCards: MetricCardProps[] = [
-    {
-      label: 'Population',
-      suburbValue: formatNumber(simulatedAbsData.population),
-      vicAverageValue: formatNumber(VICTORIAN_AVERAGES.population),
-      deltaLabel: createDeltaLabel(
-        simulatedAbsData.population,
-        VICTORIAN_AVERAGES.population,
-        0
-      ),
+  const demographicCards: MetricCardProps[] = simulatedDemographicsEntries.map(([metric, simulatedValue]) => {
+    const victorianAverage = VICTORIAN_AVERAGES[metric]
+
+    return {
+      label: DEMOGRAPHICS_LABELS[metric],
+      suburbValue: format(simulatedValue, DEMOGRAPHICS_FORMATS[metric]),
+      vicAverageValue: format(victorianAverage, DEMOGRAPHICS_FORMATS[metric]),
+      deltaLabel: createDeltaLabel(simulatedValue, victorianAverage, DEMOGRAPHICS_FORMATS[metric])
     }
-  ]
+  })
 
   return (
     <section className="metrics-section">

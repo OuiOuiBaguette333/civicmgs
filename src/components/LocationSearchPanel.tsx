@@ -8,6 +8,11 @@ interface LocationSearchPanelProps {
   onSelectLocation: (location: Location) => void
 }
 
+interface SelectValue {
+  label: string
+  value: string
+}
+
 async function loadLocationsOptions(input: string) {
   const normalisedInput = input.trim().toLowerCase()
 
@@ -28,7 +33,7 @@ function getNoOptionsMessage({ inputValue }: { inputValue: string }) {
   return inputValue ? 'Enter at least 3 characters' : 'Enter a location...'
 }
 
-const selectStyles: StylesConfig = {
+const selectStyles: StylesConfig<SelectValue> = {
   control(baseStyles: CSSObjectWithLabel) {
     return {
       ...baseStyles,
@@ -43,7 +48,7 @@ export function LocationSearchPanel({
   selectedLocation,
   onSelectLocation,
 }: LocationSearchPanelProps) {
-  const selectValue = selectedLocation && {
+  const selectValue: SelectValue | undefined = selectedLocation && {
     label: selectedLocation.name,
     value: selectedLocation.code
   }
@@ -62,16 +67,15 @@ export function LocationSearchPanel({
         Statistical Area Level 2
       </label>
 
-      <AsyncSelect
+      <AsyncSelect<SelectValue>
         loadOptions={loadLocationsOptions}
         noOptionsMessage={getNoOptionsMessage}
         blurInputOnSelect
-        controlShouldRenderValue
         inputId="location-select"
         placeholder={null}
         styles={selectStyles}
         value={selectValue}
-        onChange={newValue => onSelectLocation({ code: (newValue as any).value!, name: (newValue as any).label! })}
+        onChange={newValue => newValue && onSelectLocation({ code: newValue.value, name: newValue.label })}
       />
     </section>
   )
