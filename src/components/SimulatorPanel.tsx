@@ -13,11 +13,11 @@ interface SliderRowProps {
   onChange: (value: number) => void
 }
 
-function SliderRow({ label, value, onChange }: SliderRowProps) {
-  const MIN = -20
-  const MAX = 20
-  const STEP = 0.1
+const MIN = -20
+const MAX = 20
+const STEP = 0.1
 
+function SliderRow({ label, value, onChange }: SliderRowProps) {
   const [tempValue, setTempValue] = useState<number | "">(value)
 
   const handleBoxChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -26,27 +26,27 @@ function SliderRow({ label, value, onChange }: SliderRowProps) {
       return
     }
 
-    const value = event.target.valueAsNumber
+    const newValue = event.target.valueAsNumber
 
-    setTempValue(value)
+    setTempValue(newValue)
 
-    if (value >= MIN && value <= MAX) {
-      onChange(value)
+    if (newValue >= MIN && newValue <= MAX) {
+      onChange(newValue)
     }
   }
 
   const handleBoxBlur = (event: FocusEvent<HTMLInputElement>) => {
-    const value = event.target.valueAsNumber
-    const correctedValue = Number.isNaN(value) ? 0 : Math.round(clamp(value, MIN, MAX) * 10) / 10
+    const newValue = event.target.valueAsNumber
+    const correctedValue = Number.isNaN(newValue) ? 0 : Math.round(clamp(newValue, MIN, MAX) * 10) / 10
 
     setTempValue(correctedValue)
     onChange(correctedValue)
   }
 
   const handleSliderChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.valueAsNumber
-    setTempValue(value)
-    onChange(value)
+    const newValue = event.target.valueAsNumber
+    setTempValue(newValue)
+    onChange(newValue)
   }
 
   return (

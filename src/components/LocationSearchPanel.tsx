@@ -21,8 +21,8 @@ async function loadLocationsOptions(input: string) {
   const { default: vicSA2s } = await import('@data/abs/SA2_VIC.json')
 
   const filteredOptions = vicSA2s.map(({ label: group, options }) => {
-    const filteredOptions = options.filter(({ label }) => label.toLowerCase().includes(normalisedInput) || group.toLowerCase().includes(normalisedInput))
-    return { label: group, options: filteredOptions }
+    const filtered = options.filter(({ label }) => label.toLowerCase().includes(normalisedInput) || group.toLowerCase().includes(normalisedInput))
+    return { label: group, options: filtered }
   })
 
   return filteredOptions
@@ -59,7 +59,7 @@ export function LocationSearchPanel({
 
       <p>
         Search for a{" "}
-        <a href={SA2_INFO_LINK} target="_blank">Statistical Area Level 2 (ABS)</a>
+        <a href={SA2_INFO_LINK} target="_blank" rel="noreferrer">Statistical Area Level 2 (ABS)</a>
         {" "}in Victoria, which generally corresponds to a suburb.
       </p>
 
