@@ -1,16 +1,11 @@
 export interface MetricCardProps {
-  label: string
-  suburbValue: string
-  vicAverageValue: string
-  deltaLabel: string
+  label: string;
+  suburbValue: string;
+  vicAverageValue: string;
+  deltaLabel: string;
 }
 
-export function MetricCard({
-  label,
-  suburbValue,
-  vicAverageValue,
-  deltaLabel,
-}: MetricCardProps) {
+export function MetricCard({ label, suburbValue, vicAverageValue, deltaLabel }: MetricCardProps) {
   return (
     <article className="metric-card">
       <p className="metric-card__label">{label}</p>
@@ -18,5 +13,5 @@ export function MetricCard({
       <p className="metric-card__average">VIC average: {vicAverageValue}</p>
       <p className="metric-card__delta">{deltaLabel}</p>
     </article>
-  )
+  );
 }

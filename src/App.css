@@ -70,11 +70,11 @@
   color: var(--text-h);
 }
 
-.scenario-slider-row input[type='range'] {
+.scenario-slider-row input[type="range"] {
   width: 100%;
 }
 
-.scenario-slider-row input[type='number'] {
+.scenario-slider-row input[type="number"] {
   appearance: textfield;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -84,7 +84,6 @@
   padding: 0.5em;
   text-align: right;
   width: 5ch;
-
 
   &::-webkit-inner-spin-button,
   &::-webkit-outer-spin-button {
