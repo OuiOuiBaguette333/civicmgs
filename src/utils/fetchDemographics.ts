@@ -46,8 +46,7 @@ type ApiResponse = {
   errors: [];
 };
 
-const API_BASE_URL =
-  "https://data.api.abs.gov.au/rest/data/ABS,ABS_REGIONAL_ASGS2021,1.5.0/EQUIV_2+LF_4+ERP_P_20+ERP_23";
+const API_BASE_URL = "https://data.api.abs.gov.au/rest/data/ABS,ABS_REGIONAL_ASGS2021,";
 
 const API_IDS: Record<Demographic, string> = {
   population: "ERP_P_20",
@@ -64,7 +63,9 @@ export default async (locationCode: string): Promise<Demographics> => {
     format: "jsondata",
   });
 
-  const apiUrl = `${API_BASE_URL}.SA2.${locationCode}.A?${apiSearchParams}`;
+  const ids = Object.values(API_IDS).join("+");
+
+  const apiUrl = `${API_BASE_URL}/${ids}.SA2.${locationCode}.A?${apiSearchParams}`;
 
   const apiResponse = await fetch(apiUrl);
   const apiData: ApiResponse = await apiResponse.json();
