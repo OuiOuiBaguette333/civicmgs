@@ -9,4 +9,5 @@ export const VICTORIAN_AVERAGES = {
   medianWeeklyHouseholdIncome: 1095,
   unemploymentRate: 5,
   rent: 362,
+  personsBornOverseas: 3779,
 };

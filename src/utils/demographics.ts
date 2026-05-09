@@ -4,6 +4,7 @@ export const DEMOGRAPHICS = [
   "medianWeeklyHouseholdIncome",
   "unemploymentRate",
   "rent",
+  "personsBornOverseas",
 ] as const;
 
 export type Demographic = (typeof DEMOGRAPHICS)[number];
@@ -25,6 +26,7 @@ export const DEMOGRAPHICS_LABELS: Record<Demographic, string> = {
   medianWeeklyHouseholdIncome: "Median weekly household income",
   unemploymentRate: "Unemployment rate",
   rent: "Median weekly household rent",
+  personsBornOverseas: "Persons born overseas",
 };
 
 export const CHANGEABLE_DEMOGRAPHICS: Demographic[] = ["population"];
