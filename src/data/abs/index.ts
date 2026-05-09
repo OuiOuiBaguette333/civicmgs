@@ -8,4 +8,5 @@ export const VICTORIAN_AVERAGES = {
   medianAge: 40.0,
   medianWeeklyHouseholdIncome: 1095,
   unemploymentRate: 5,
+  rent: 362,
 };

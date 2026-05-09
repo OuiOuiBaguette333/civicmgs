@@ -53,6 +53,7 @@ const API_IDS: Record<Demographic, string> = {
   medianAge: "ERP_23",
   medianWeeklyHouseholdIncome: "EQUIV_2",
   unemploymentRate: "LF_4",
+  rent: "RENT_4",
 };
 
 export default async (locationCode: string): Promise<Demographics> => {

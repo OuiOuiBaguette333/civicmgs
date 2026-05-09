@@ -3,6 +3,7 @@ export const DEMOGRAPHICS = [
   "medianAge",
   "medianWeeklyHouseholdIncome",
   "unemploymentRate",
+  "rent",
 ] as const;
 
 export type Demographic = (typeof DEMOGRAPHICS)[number];
@@ -15,6 +16,7 @@ export const DEMOGRAPHICS_FORMATS: Partial<Record<Demographic, string>> = {
   medianAge: "years",
   medianWeeklyHouseholdIncome: "$",
   unemploymentRate: "%",
+  rent: "$",
 };
 
 export const DEMOGRAPHICS_LABELS: Record<Demographic, string> = {
@@ -22,6 +24,7 @@ export const DEMOGRAPHICS_LABELS: Record<Demographic, string> = {
   medianAge: "Median age",
   medianWeeklyHouseholdIncome: "Median weekly household income",
   unemploymentRate: "Unemployment rate",
+  rent: "Median weekly household rent",
 };
 
 export const CHANGEABLE_DEMOGRAPHICS: Demographic[] = ["population"];
