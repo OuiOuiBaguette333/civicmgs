@@ -2,6 +2,7 @@ import { MetricCard, type MetricCardProps } from "@components/MetricCard";
 import { VICTORIAN_AVERAGES, YEAR } from "@data/abs";
 import type { Location } from "@types";
 import {
+  CHANGEABLE_DEMOGRAPHICS,
   DEMOGRAPHICS_FORMATS,
   DEMOGRAPHICS_LABELS,
   type Demographic,
@@ -48,10 +49,12 @@ export function MetricsComparisonSection({
 
   const simulatedDemographicsEntries = Object.entries(demographics).map(
     ([metric, value]) =>
-      [metric, simulate(value, simulatedDemographicsChanges[metric as Demographic])] as [
-        Demographic,
-        number,
-      ],
+      [
+        metric,
+        CHANGEABLE_DEMOGRAPHICS.includes(metric as Demographic)
+          ? simulate(value, simulatedDemographicsChanges[metric as Demographic])
+          : value,
+      ] as [Demographic, number],
   );
 
   const demographicCards: MetricCardProps[] = simulatedDemographicsEntries.map(
