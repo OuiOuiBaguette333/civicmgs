@@ -5,6 +5,8 @@ export const DEMOGRAPHICS = [
   "unemploymentRate",
   "rent",
   "personsBornOverseas",
+  "year12Completion",
+  "nonSchoolQualifications",
 ] as const;
 
 export type Demographic = (typeof DEMOGRAPHICS)[number];
@@ -18,6 +20,8 @@ export const DEMOGRAPHICS_FORMATS: Partial<Record<Demographic, string>> = {
   medianWeeklyHouseholdIncome: "$",
   unemploymentRate: "%",
   rent: "$",
+  year12Completion: "%",
+  nonSchoolQualifications: "%",
 };
 
 export const DEMOGRAPHICS_LABELS: Record<Demographic, string> = {
@@ -27,6 +31,8 @@ export const DEMOGRAPHICS_LABELS: Record<Demographic, string> = {
   unemploymentRate: "Unemployment rate",
   rent: "Median weekly household rent",
   personsBornOverseas: "Persons born overseas",
+  year12Completion: "Year 12 completion",
+  nonSchoolQualifications: "Non-school qualifications",
 };
 
 export const CHANGEABLE_DEMOGRAPHICS: Demographic[] = ["population"];

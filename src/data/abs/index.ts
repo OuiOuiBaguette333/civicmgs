@@ -10,4 +10,6 @@ export const VICTORIAN_AVERAGES = {
   unemploymentRate: 5,
   rent: 362,
   personsBornOverseas: 3779,
+  year12Completion: 60.1,
+  nonSchoolQualifications: 63.3,
 };
