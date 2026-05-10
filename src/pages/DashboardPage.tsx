@@ -1,13 +1,13 @@
-import { DEMOGRAPHICS_LABELS, ZEROED_CHANGEABLE_DEMOGRAPHICS } from '@utils/demographics'
-import type { Location } from '@types'
-import { LocationSearchPanel } from '@components/LocationSearchPanel'
-import { MetricsComparisonSection } from '@components/MetricsComparisonSection'
-import { SimulatorPanel } from '@components/SimulatorPanel'
-import { useState } from 'react'
+import { LocationSearchPanel } from "@components/LocationSearchPanel";
+import { MetricsComparisonSection } from "@components/MetricsComparisonSection";
+import { SimulatorPanel } from "@components/SimulatorPanel";
+import type { Location } from "@types";
+import { DEMOGRAPHICS_LABELS, ZEROED_CHANGEABLE_DEMOGRAPHICS } from "@utils/demographics";
+import { useState } from "react";
 
 export function DashboardPage() {
-  const [selectedLocation, setSelectedLocation] = useState<Location | undefined>()
-  const [demographicsChange, setDemographicsChange] = useState(ZEROED_CHANGEABLE_DEMOGRAPHICS)
+  const [selectedLocation, setSelectedLocation] = useState<Location | undefined>();
+  const [demographicsChange, setDemographicsChange] = useState(ZEROED_CHANGEABLE_DEMOGRAPHICS);
 
   return (
     <main className="dashboard-page">
@@ -33,5 +33,5 @@ export function DashboardPage() {
         simulatedDemographicsChanges={demographicsChange}
       />
     </main>
-  )
+  );
 }

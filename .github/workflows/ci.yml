@@ -1,0 +1,38 @@
+name: CI
+run-name: CI / ${{ github.event.head_commit.message }}
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+
+      - run: npm ci
+
+      - name: oxfmt
+        run: npm run fmt:check
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+
+      - run: npm ci
+
+      - name: oxlint
+        run: npm run lint:github

@@ -1,53 +1,55 @@
-import { clamp } from '@utils'
-import { useState, type ChangeEvent, type FocusEvent } from 'react'
+import { clamp } from "@utils";
+import { useState, type ChangeEvent, type FocusEvent } from "react";
 
 interface SimulatorPanelProps<T extends Record<string, number>> {
-  simulatedChanges: T
-  onSimulationChange: (value: T) => void
-  labels: Record<keyof T, string>
+  simulatedChanges: T;
+  onSimulationChange: (value: T) => void;
+  labels: Record<keyof T, string>;
 }
 
 interface SliderRowProps {
-  label: string
-  value: number
-  onChange: (value: number) => void
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
 }
 
-const MIN = -20
-const MAX = 20
-const STEP = 0.1
+const MIN = -20;
+const MAX = 20;
+const STEP = 0.1;
 
 function SliderRow({ label, value, onChange }: SliderRowProps) {
-  const [tempValue, setTempValue] = useState<number | "">(value)
+  const [tempValue, setTempValue] = useState<number | "">(value);
 
   const handleBoxChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (!event.target.value) {
-      setTempValue("")
-      return
+      setTempValue("");
+      return;
     }
 
-    const newValue = event.target.valueAsNumber
+    const newValue = event.target.valueAsNumber;
 
-    setTempValue(newValue)
+    setTempValue(newValue);
 
     if (newValue >= MIN && newValue <= MAX) {
-      onChange(newValue)
+      onChange(newValue);
     }
-  }
+  };
 
   const handleBoxBlur = (event: FocusEvent<HTMLInputElement>) => {
-    const newValue = event.target.valueAsNumber
-    const correctedValue = Number.isNaN(newValue) ? 0 : Math.round(clamp(newValue, MIN, MAX) * 10) / 10
+    const newValue = event.target.valueAsNumber;
+    const correctedValue = Number.isNaN(newValue)
+      ? 0
+      : Math.round(clamp(newValue, MIN, MAX) * 10) / 10;
 
-    setTempValue(correctedValue)
-    onChange(correctedValue)
-  }
+    setTempValue(correctedValue);
+    onChange(correctedValue);
+  };
 
   const handleSliderChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const newValue = event.target.valueAsNumber
-    setTempValue(newValue)
-    onChange(newValue)
-  }
+    const newValue = event.target.valueAsNumber;
+    setTempValue(newValue);
+    onChange(newValue);
+  };
 
   return (
     <fieldset className="scenario-slider-row">
@@ -80,7 +82,7 @@ function SliderRow({ label, value, onChange }: SliderRowProps) {
         onChange={handleSliderChange}
       />
     </fieldset>
-  )
+  );
 }
 
 export function SimulatorPanel<T extends Record<string, number>>({
@@ -91,27 +93,25 @@ export function SimulatorPanel<T extends Record<string, number>>({
   const handleChange = (metric: string, newValue: number) => {
     onSimulationChange({
       ...simulatedChanges,
-      [metric]: Number.isNaN(newValue) ? 0 : newValue
-    })
-  }
+      [metric]: Number.isNaN(newValue) ? 0 : newValue,
+    });
+  };
 
   return (
     <section className="scenario-panel">
       <h2>Scenario simulator</h2>
       <p>Adjust percentages to see immediate impact on suburb metrics.</p>
 
-      {
-        Object.entries(simulatedChanges).map(([metric, value]) => {
-          return (
-            <SliderRow
-              key={metric}
-              label={labels[metric]}
-              value={value}
-              onChange={newValue => handleChange(metric, newValue)}
-            />
-          )
-        })
-      }
+      {Object.entries(simulatedChanges).map(([metric, value]) => {
+        return (
+          <SliderRow
+            key={metric}
+            label={labels[metric]}
+            value={value}
+            onChange={newValue => handleChange(metric, newValue)}
+          />
+        );
+      })}
     </section>
-  )
+  );
 }

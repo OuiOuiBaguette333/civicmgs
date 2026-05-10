@@ -1,9 +1,10 @@
 // Creates SA2_AUS.json and SA2_VIC.json from SA2_AUS.csv
 // (in src/data/abs)
 
-import csv from "csvtojson";
 import { writeFile } from "node:fs/promises";
 import { resolve as resolvePath } from "node:path";
+
+import csv from "csvtojson";
 
 type SA2 = {
   "S/T code": string;
@@ -35,14 +36,21 @@ const data: SA2[] = await csv().fromFile(csvPath);
 const groupedByState = Object.groupBy(data, item => item["S/T name"]);
 const groupedByStateEntries = Object.entries(groupedByState);
 
-const groupedBySA4Entries = groupedByStateEntries.map(([state, items]) => [state, Object.groupBy(items!, item => item["SA4 name"])]);
+const groupedBySA4Entries = groupedByStateEntries.map(([state, items]) => [
+  state,
+  Object.groupBy(items!, item => item["SA4 name"]),
+]);
 
 const formattedEntries = groupedBySA4Entries.map(([state, value]) => {
   return [
     state,
     Object.fromEntries(
-      Object.entries(value).map(([SA4, SA2s]) => [SA4, (SA2s as SA2[]).map(SA2 => ({ label: SA2["SA2 name"], value: SA2["SA2 code"] }))])
-  )];
+      Object.entries(value).map(([SA4, SA2s]) => [
+        SA4,
+        (SA2s as SA2[]).map(SA2 => ({ label: SA2["SA2 name"], value: SA2["SA2 code"] })),
+      ]),
+    ),
+  ];
 });
 
 const aus = Object.fromEntries(formattedEntries);
