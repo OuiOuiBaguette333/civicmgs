@@ -77,12 +77,19 @@ export default async (locationCode: string): Promise<Demographics> => {
   const measures = apiData.data.structures[0].dimensions.observation[0].values;
   const observations = apiData.data.dataSets[0].observations;
 
-  const demographicsEntries = DEMOGRAPHICS.map<[Demographic, number]>(demographic => {
+  const demographicsEntries = DEMOGRAPHICS.map<[Demographic, number] | null>(demographic => {
     const measureIndex = measures.findIndex(({ id }) => id === API_IDS[demographic]);
+
+    if (measureIndex === -1) {
+      return null;
+    }
+
     const observationKey = `${measureIndex}:0:0:0:0`;
     const [value] = observations[observationKey];
     return [demographic, value];
   });
 
-  return Object.fromEntries(demographicsEntries) as Record<Demographic, number>;
+  const populatedDemographicsEntries = demographicsEntries.filter(entry => entry !== null);
+
+  return Object.fromEntries(populatedDemographicsEntries) as Record<Demographic, number>;
 };

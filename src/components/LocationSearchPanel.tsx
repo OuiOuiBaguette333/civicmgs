@@ -46,13 +46,6 @@ const selectStyles: StylesConfig<SelectValue> = {
       padding: "6px 6px",
     };
   },
-
-  option(baseStyles: CSSObjectWithLabel) {
-    return {
-      ...baseStyles,
-      color: "#6b6375",
-    };
-  },
 };
 
 export function LocationSearchPanel({
@@ -80,18 +73,20 @@ export function LocationSearchPanel({
         Statistical Area Level 2
       </label>
 
-      <AsyncSelect<SelectValue>
-        loadOptions={loadLocationsOptions}
-        noOptionsMessage={getNoOptionsMessage}
-        blurInputOnSelect
-        inputId="location-select"
-        placeholder={null}
-        styles={selectStyles}
-        value={selectValue}
-        onChange={newValue =>
-          newValue && onSelectLocation({ code: newValue.value, name: newValue.label })
-        }
-      />
+      <div style={{ color: "#6b6375" }}>
+        <AsyncSelect<SelectValue>
+          loadOptions={loadLocationsOptions}
+          noOptionsMessage={getNoOptionsMessage}
+          blurInputOnSelect
+          inputId="location-select"
+          placeholder={null}
+          styles={selectStyles}
+          value={selectValue}
+          onChange={newValue =>
+            newValue && onSelectLocation({ code: newValue.value, name: newValue.label })
+          }
+        />
+      </div>
     </section>
   );
 }
