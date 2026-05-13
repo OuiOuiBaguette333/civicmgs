@@ -35,10 +35,7 @@ export const DEMOGRAPHICS_LABELS: Record<Demographic, string> = {
   nonSchoolQualifications: "Non-school qualifications",
 };
 
-export const CHANGEABLE_DEMOGRAPHICS: Demographic[] = [
-  "population",
-  "medianWeeklyHouseholdIncome",
-];
+export const CHANGEABLE_DEMOGRAPHICS: Demographic[] = ["population", "medianWeeklyHouseholdIncome"];
 export const ZEROED_CHANGEABLE_DEMOGRAPHICS = Object.fromEntries(
   CHANGEABLE_DEMOGRAPHICS.map(metric => [metric, 0]),
 ) as Demographics;
