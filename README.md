@@ -11,7 +11,7 @@ proposed change would mean for it.
   (`ABS_REGIONAL_ASGS2021`) and compare them against Victoria as a whole.
 - Adjust a metric with a slider and see the simulated figure beside its baseline.
 
-## What it does *not* do yet
+## What it does _not_ do yet
 
 The sliders currently scale a metric by itself. **There is no causal model**: moving
 the income slider does not move employment or Year 12 completion, and nothing here
@@ -20,7 +20,7 @@ should be read as a prediction.
 That is deliberate, because it is the hard part:
 
 1. **The census contains no policy levers.** There is no "education funding" column
-   at SA2. The census records *outcomes* — attainment, income, unemployment — as a
+   at SA2. The census records _outcomes_ — attainment, income, unemployment — as a
    stock at one moment. Funding lives in the Victorian budget papers, the
    Productivity Commission's [Report on Government Services](https://www.pc.gov.au/ongoing/report-on-government-services),
    and ABS Government Finance Statistics.

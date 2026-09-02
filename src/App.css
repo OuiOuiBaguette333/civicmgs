@@ -141,3 +141,44 @@
     font-size: 30px;
   }
 }
+
+.metrics-section__status {
+  color: var(--text);
+}
+
+.metric-card__note,
+.metric-card__baseline {
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.metric-card__note {
+  color: var(--text);
+  margin-top: -2px;
+}
+
+.metric-card__value--empty {
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.metric-card__delta--positive {
+  color: var(--positive);
+}
+
+.metric-card__delta--negative {
+  color: var(--negative);
+}
+
+.error-boundary {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 32px;
+  padding: 20px;
+  text-align: left;
+
+  & p {
+    margin: 8px 0 16px;
+  }
+}
