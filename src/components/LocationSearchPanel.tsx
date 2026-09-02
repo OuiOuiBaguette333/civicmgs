@@ -1,5 +1,6 @@
 import { SA2_INFO_LINK } from "@data/abs";
 import type { Location } from "@types";
+import debounceAsync from "@utils/debounceAsync";
 import type { CSSObjectWithLabel, StylesConfig } from "react-select";
 import AsyncSelect from "react-select/async";
 
@@ -13,28 +14,41 @@ interface SelectValue {
   value: string;
 }
 
-async function loadLocationsOptions(input: string) {
-  const normalisedInput = input.trim().toLowerCase();
+interface LocationGroup {
+  label: string;
+  options: SelectValue[];
+}
 
-  if (normalisedInput.length < 3) return [];
+const MIN_QUERY_LENGTH = 3;
+const SEARCH_DEBOUNCE_MS = 200;
+
+async function searchLocations(input: string): Promise<LocationGroup[]> {
+  const query = input.trim().toLowerCase();
+
+  if (query.length < MIN_QUERY_LENGTH) return [];
 
   const { default: vicSA2s } = await import("@data/abs/SA2_VIC.json");
 
-  const filteredOptions = vicSA2s.map(({ label: group, options }) => {
-    const filtered = options.filter(
-      ({ label }) =>
-        label.toLowerCase().includes(normalisedInput) ||
-        group.toLowerCase().includes(normalisedInput),
-    );
-    return { label: group, options: filtered };
-  });
-
-  return filteredOptions;
+  return (
+    vicSA2s
+      .map(({ label: group, options }) => ({
+        label: group,
+        options: options.filter(
+          ({ label }) => label.toLowerCase().includes(query) || group.toLowerCase().includes(query),
+        ),
+      }))
+      // react-select still draws a heading for a group with nothing under it.
+      .filter(group => group.options.length > 0)
+  );
 }
 
+// Every keystroke otherwise walks all ~500 Victorian SA2s.
+const loadLocationOptions = debounceAsync(searchLocations, SEARCH_DEBOUNCE_MS);
+
 function getNoOptionsMessage({ inputValue }: { inputValue: string }) {
-  if (inputValue.length >= 3) return "No location found";
-  return inputValue ? "Enter at least 3 characters" : "Enter a location...";
+  if (inputValue.length >= MIN_QUERY_LENGTH) return "No location found";
+
+  return inputValue ? `Enter at least ${MIN_QUERY_LENGTH} characters` : "Enter a location...";
 }
 
 const selectStyles: StylesConfig<SelectValue> = {
@@ -73,9 +87,9 @@ export function LocationSearchPanel({
         Statistical Area Level 2
       </label>
 
-      <div style={{ color: "#6b6375" }}>
+      <div className="location-panel__select">
         <AsyncSelect<SelectValue>
-          loadOptions={loadLocationsOptions}
+          loadOptions={loadLocationOptions}
           noOptionsMessage={getNoOptionsMessage}
           blurInputOnSelect
           inputId="location-select"

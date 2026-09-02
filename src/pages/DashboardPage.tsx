@@ -28,6 +28,7 @@ export function DashboardPage() {
       <SimulatorPanel
         simulatedChanges={simulatedChanges}
         onSimulationChange={setSimulatedChanges}
+        onReset={() => setSimulatedChanges(NO_SIMULATED_CHANGES)}
         labels={DEMOGRAPHICS_LABELS}
       />
 

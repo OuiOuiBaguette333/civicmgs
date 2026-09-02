@@ -46,12 +46,20 @@
   text-align: left;
 }
 
+.scenario-panel__header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
 .scenario-panel h2 {
   margin-bottom: 8px;
 }
 
-.scenario-panel > p {
-  margin-bottom: 12px;
+.location-panel__select {
+  color: var(--text);
 }
 
 .scenario-slider-row {
@@ -62,19 +70,29 @@
   margin-bottom: 0;
 }
 
-.scenario-slider-row__top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.scenario-slider-row {
+  display: block;
+}
+
+.scenario-slider-row__legend {
+  display: block;
   margin-bottom: 6px;
   color: var(--text-h);
 }
 
+.scenario-slider-row__controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .scenario-slider-row input[type="range"] {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
 }
 
 .scenario-slider-row input[type="number"] {
+  flex: none;
   appearance: textfield;
   border: 1px solid var(--border);
   border-radius: 8px;
