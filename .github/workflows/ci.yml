@@ -53,3 +53,18 @@ jobs:
 
       - name: tsc + vite build
         run: npm run build
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - run: npm ci
+
+      - name: vitest
+        run: npm test
