@@ -51,15 +51,41 @@ function getNoOptionsMessage({ inputValue }: { inputValue: string }) {
   return inputValue ? `Enter at least ${MIN_QUERY_LENGTH} characters` : "Enter a location...";
 }
 
+// react-select paints its own light-mode colours, so every surface it draws has
+// to be pointed back at the theme tokens or the whole control stays white in
+// dark mode.
 const selectStyles: StylesConfig<SelectValue> = {
-  control(baseStyles: CSSObjectWithLabel) {
-    return {
-      ...baseStyles,
-      borderColor: "var(--border)",
-      borderRadius: "8px",
-      padding: "6px 6px",
-    };
-  },
+  control: (baseStyles: CSSObjectWithLabel, { isFocused }) => ({
+    ...baseStyles,
+    backgroundColor: "var(--bg)",
+    borderColor: isFocused ? "var(--accent-border)" : "var(--border)",
+    borderRadius: "8px",
+    boxShadow: "none",
+    padding: "6px 6px",
+    "&:hover": { borderColor: "var(--accent-border)" },
+  }),
+  input: (baseStyles: CSSObjectWithLabel) => ({ ...baseStyles, color: "var(--text-h)" }),
+  singleValue: (baseStyles: CSSObjectWithLabel) => ({ ...baseStyles, color: "var(--text-h)" }),
+  placeholder: (baseStyles: CSSObjectWithLabel) => ({ ...baseStyles, color: "var(--text)" }),
+  menu: (baseStyles: CSSObjectWithLabel) => ({
+    ...baseStyles,
+    backgroundColor: "var(--bg)",
+    border: "1px solid var(--border)",
+  }),
+  option: (baseStyles: CSSObjectWithLabel, { isFocused }) => ({
+    ...baseStyles,
+    backgroundColor: isFocused ? "var(--accent-bg)" : "transparent",
+    color: "var(--text-h)",
+    "&:active": { backgroundColor: "var(--accent-bg)" },
+  }),
+  groupHeading: (baseStyles: CSSObjectWithLabel) => ({ ...baseStyles, color: "var(--text)" }),
+  noOptionsMessage: (baseStyles: CSSObjectWithLabel) => ({ ...baseStyles, color: "var(--text)" }),
+  loadingMessage: (baseStyles: CSSObjectWithLabel) => ({ ...baseStyles, color: "var(--text)" }),
+  indicatorSeparator: (baseStyles: CSSObjectWithLabel) => ({
+    ...baseStyles,
+    backgroundColor: "var(--border)",
+  }),
+  dropdownIndicator: (baseStyles: CSSObjectWithLabel) => ({ ...baseStyles, color: "var(--text)" }),
 };
 
 export function LocationSearchPanel({
@@ -87,20 +113,18 @@ export function LocationSearchPanel({
         Statistical Area Level 2
       </label>
 
-      <div className="location-panel__select">
-        <AsyncSelect<SelectValue>
-          loadOptions={loadLocationOptions}
-          noOptionsMessage={getNoOptionsMessage}
-          blurInputOnSelect
-          inputId="location-select"
-          placeholder={null}
-          styles={selectStyles}
-          value={selectValue}
-          onChange={newValue =>
-            newValue && onSelectLocation({ code: newValue.value, name: newValue.label })
-          }
-        />
-      </div>
+      <AsyncSelect<SelectValue>
+        loadOptions={loadLocationOptions}
+        noOptionsMessage={getNoOptionsMessage}
+        blurInputOnSelect
+        inputId="location-select"
+        placeholder={null}
+        styles={selectStyles}
+        value={selectValue}
+        onChange={newValue =>
+          newValue && onSelectLocation({ code: newValue.value, name: newValue.label })
+        }
+      />
     </section>
   );
 }
