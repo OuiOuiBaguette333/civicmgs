@@ -7,6 +7,8 @@
   --accent-bg: rgba(170, 59, 255, 0.1);
   --accent-border: rgba(61, 113, 255, 0.5);
   --social-bg: rgba(244, 243, 236, 0.5);
+  --positive: #14713d;
+  --negative: #a32330;
   --shadow: rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
   --sans: system-ui, "Segoe UI", Roboto, sans-serif;
@@ -38,6 +40,8 @@
     --accent-bg: rgba(192, 132, 252, 0.15);
     --accent-border: rgba(131, 163, 252, 0.5);
     --social-bg: rgba(47, 48, 58, 0.5);
+    --positive: #5cd68f;
+    --negative: #f4838d;
     --shadow: rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
   }
 }
@@ -103,4 +107,32 @@ a {
 fieldset {
   all: unset;
   width: 100%;
+}
+
+button {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-h);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85em;
+  padding: 0.5em 1em;
+
+  &:hover {
+    border-color: var(--accent-border);
+    color: var(--accent);
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
