@@ -1,4 +1,5 @@
 import type { Delta } from "@utils/format";
+import type { ReactNode } from "react";
 
 export interface MetricCardProps {
   label: string;
@@ -11,6 +12,8 @@ export interface MetricCardProps {
   delta?: Delta;
   /** Whether changes to the value should be announced to screen readers. */
   live?: boolean;
+  /** The modelled projection, when a policy scenario is running. */
+  footer?: ReactNode;
 }
 
 export function MetricCard({
@@ -21,6 +24,7 @@ export function MetricCard({
   stateValue,
   delta,
   live = false,
+  footer,
 }: MetricCardProps) {
   return (
     <article className="metric-card">
@@ -42,6 +46,8 @@ export function MetricCard({
       {delta && (
         <p className={`metric-card__delta metric-card__delta--${delta.tone}`}>{delta.label}</p>
       )}
+
+      {footer}
     </article>
   );
 }

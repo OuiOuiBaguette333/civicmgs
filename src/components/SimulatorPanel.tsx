@@ -1,5 +1,4 @@
-import { clamp } from "@utils";
-import { useState, type ChangeEvent, type FocusEvent } from "react";
+import { SliderRow } from "@components/SliderRow";
 
 interface SimulatorPanelProps<T extends Record<string, number>> {
   simulatedChanges: T;
@@ -8,92 +7,9 @@ interface SimulatorPanelProps<T extends Record<string, number>> {
   labels: Record<keyof T, string>;
 }
 
-interface SliderRowProps {
-  metric: string;
-  label: string;
-  value: number;
-  onChange: (value: number) => void;
-}
-
 const MIN = -20;
 const MAX = 20;
 const STEP = 0.1;
-
-const roundToStep = (value: number) => Math.round(value * 10) / 10;
-
-function SliderRow({ metric, label, value, onChange }: SliderRowProps) {
-  /**
-   * Only set while the box is being typed in. Falling back to the prop the rest
-   * of the time means an outside change — a reset — flows through on its own,
-   * while a half-typed "1." survives the parent echoing back 1.
-   */
-  const [draft, setDraft] = useState<string | null>(null);
-
-  const sliderId = `slider-${metric}`;
-  const boxId = `box-${metric}`;
-
-  const handleBoxChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const text = event.target.value;
-    setDraft(text);
-
-    // An empty box means the user is partway through retyping, not asking for 0.
-    if (text.trim() === "") return;
-
-    const parsed = Number(text);
-
-    if (Number.isFinite(parsed) && parsed >= MIN && parsed <= MAX) onChange(parsed);
-  };
-
-  const handleBoxBlur = (event: FocusEvent<HTMLInputElement>) => {
-    const parsed = Number(event.target.value);
-    setDraft(null);
-    onChange(Number.isFinite(parsed) ? roundToStep(clamp(parsed, MIN, MAX)) : 0);
-  };
-
-  const handleSliderChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setDraft(null);
-    onChange(event.target.valueAsNumber);
-  };
-
-  return (
-    <fieldset className="scenario-slider-row">
-      <legend className="scenario-slider-row__legend">{label}</legend>
-
-      <div className="scenario-slider-row__controls">
-        <label className="visually-hidden" htmlFor={sliderId}>
-          {label} change, slider
-        </label>
-
-        <input
-          type="range"
-          min={MIN}
-          max={MAX}
-          step={STEP}
-          value={value}
-          id={sliderId}
-          onChange={handleSliderChange}
-        />
-
-        <label className="visually-hidden" htmlFor={boxId}>
-          {label} change, percent
-        </label>
-
-        <input
-          type="number"
-          min={MIN}
-          max={MAX}
-          step={STEP}
-          value={draft ?? value}
-          id={boxId}
-          onChange={handleBoxChange}
-          onBlur={handleBoxBlur}
-        />
-
-        <span aria-hidden="true">%</span>
-      </div>
-    </fieldset>
-  );
-}
 
 export function SimulatorPanel<T extends Record<string, number>>({
   simulatedChanges,
@@ -114,8 +30,11 @@ export function SimulatorPanel<T extends Record<string, number>>({
     <section className="scenario-panel">
       <div className="scenario-panel__header">
         <div>
-          <h2>Scenario simulator</h2>
-          <p>Adjust a percentage to see it applied to the figures below.</p>
+          <h2>Direct adjustment</h2>
+          <p>
+            Scales a figure by itself, with no claim about cause. Nothing here feeds the projection
+            below.
+          </p>
         </div>
 
         {isModified && (
@@ -128,9 +47,12 @@ export function SimulatorPanel<T extends Record<string, number>>({
       {Object.entries(simulatedChanges).map(([metric, value]) => (
         <SliderRow
           key={metric}
-          metric={metric}
+          id={metric}
           label={labels[metric]}
           value={value}
+          min={MIN}
+          max={MAX}
+          step={STEP}
           onChange={newValue => handleChange(metric, newValue)}
         />
       ))}

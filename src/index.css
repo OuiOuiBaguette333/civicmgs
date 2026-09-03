@@ -9,6 +9,7 @@
   --social-bg: rgba(244, 243, 236, 0.5);
   --positive: #14713d;
   --negative: #a32330;
+  --caution: #8a5a09;
   --shadow: rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
   --sans: system-ui, "Segoe UI", Roboto, sans-serif;
@@ -42,6 +43,7 @@
     --social-bg: rgba(47, 48, 58, 0.5);
     --positive: #5cd68f;
     --negative: #f4838d;
+    --caution: #e0b054;
     --shadow: rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
   }
 }
@@ -135,4 +137,14 @@ button {
   clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
+}
+
+select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-h);
+  font-family: inherit;
+  font-size: 0.85em;
+  padding: 0.45em 0.6em;
 }

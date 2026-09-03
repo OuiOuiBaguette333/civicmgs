@@ -1,10 +1,14 @@
 import { MetricCard, type MetricCardProps } from "@components/MetricCard";
+import { MetricProjection } from "@components/MetricProjection";
 import { YEAR } from "@data/abs";
 import { type RegionDemographics, useRegionDemographics } from "@hooks/useRegionDemographics";
+import type { LeverChanges } from "@model/levers";
+import { hasAnyLeverChange, project } from "@model/project";
 import type { Location } from "@types";
 import {
   DEMOGRAPHICS,
   DEMOGRAPHICS_META,
+  type Demographic,
   isChangeable,
   type PartialDemographics,
   type SimulatedChanges,
@@ -15,9 +19,11 @@ import simulate from "@utils/simulate";
 interface MetricsComparisonSectionProps {
   location?: Location;
   simulatedChanges: SimulatedChanges;
+  leverChanges: LeverChanges;
+  horizonYears: number;
 }
 
-type MetricCardWithKey = MetricCardProps & { metric: string };
+type MetricCardWithKey = MetricCardProps & { metric: Demographic };
 
 function buildCards(
   area: PartialDemographics,
@@ -69,6 +75,8 @@ function statusMessage(state: RegionDemographics) {
 export function MetricsComparisonSection({
   location,
   simulatedChanges,
+  leverChanges,
+  horizonYears,
 }: MetricsComparisonSectionProps) {
   const { state, retry } = useRegionDemographics(location);
 
@@ -92,6 +100,11 @@ export function MetricsComparisonSection({
 
   const cards = buildCards(state.area, state.victoria, simulatedChanges);
 
+  // Projections run off the ABS baseline, not the directly adjusted figure, so
+  // the two panels cannot be mistaken for one compounding scenario.
+  const projections = project(state.area, leverChanges, horizonYears);
+  const showProjections = hasAnyLeverChange(leverChanges);
+
   return (
     <section className="metrics-section">
       <header className="metrics-section__header">
@@ -110,9 +123,22 @@ export function MetricsComparisonSection({
         <h3>Demographics</h3>
 
         <div className="metrics-grid">
-          {cards.map(({ metric, ...card }) => (
-            <MetricCard key={metric} {...card} />
-          ))}
+          {cards.map(({ metric, ...card }) => {
+            const projection = projections[metric];
+
+            return (
+              <MetricCard
+                key={metric}
+                {...card}
+                footer={
+                  showProjections &&
+                  projection && (
+                    <MetricProjection projection={projection} horizonYears={horizonYears} />
+                  )
+                }
+              />
+            );
+          })}
         </div>
       </div>
     </section>
