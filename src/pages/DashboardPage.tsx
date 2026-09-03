@@ -1,6 +1,9 @@
 import { LocationSearchPanel } from "@components/LocationSearchPanel";
 import { MetricsComparisonSection } from "@components/MetricsComparisonSection";
+import { PolicyScenarioPanel } from "@components/PolicyScenarioPanel";
 import { SimulatorPanel } from "@components/SimulatorPanel";
+import { NO_LEVER_CHANGES } from "@model/levers";
+import { DEFAULT_HORIZON } from "@model/project";
 import type { Location } from "@types";
 import { DEMOGRAPHICS_LABELS, NO_SIMULATED_CHANGES } from "@utils/demographics";
 import { useState } from "react";
@@ -8,6 +11,8 @@ import { useState } from "react";
 export function DashboardPage() {
   const [selectedLocation, setSelectedLocation] = useState<Location | undefined>();
   const [simulatedChanges, setSimulatedChanges] = useState(NO_SIMULATED_CHANGES);
+  const [leverChanges, setLeverChanges] = useState(NO_LEVER_CHANGES);
+  const [horizonYears, setHorizonYears] = useState<number>(DEFAULT_HORIZON);
 
   return (
     <main className="dashboard-page">
@@ -15,24 +20,42 @@ export function DashboardPage() {
         <p className="dashboard-page__eyebrow">CivicLens MVP</p>
         <h1>Victorian suburb snapshot</h1>
         <p>
-          Sliders currently scale a metric by itself. Nothing here models one metric affecting
-          another, so a change should not be read as a prediction.
+          Move a policy lever and CivicLens projects it onto the census figures for this suburb
+          using published research, as a range with its working shown. Where no research supports a
+          link, it says so instead of inventing a number.
         </p>
       </header>
 
-      <LocationSearchPanel
-        selectedLocation={selectedLocation}
-        onSelectLocation={setSelectedLocation}
-      />
+      <div className="dashboard-page__controls">
+        <LocationSearchPanel
+          selectedLocation={selectedLocation}
+          onSelectLocation={setSelectedLocation}
+        />
 
-      <SimulatorPanel
-        simulatedChanges={simulatedChanges}
-        onSimulationChange={setSimulatedChanges}
-        onReset={() => setSimulatedChanges(NO_SIMULATED_CHANGES)}
-        labels={DEMOGRAPHICS_LABELS}
-      />
+        <PolicyScenarioPanel
+          leverChanges={leverChanges}
+          onLeverChange={setLeverChanges}
+          horizonYears={horizonYears}
+          onHorizonChange={setHorizonYears}
+          onReset={() => setLeverChanges(NO_LEVER_CHANGES)}
+        />
 
-      <MetricsComparisonSection location={selectedLocation} simulatedChanges={simulatedChanges} />
+        <SimulatorPanel
+          simulatedChanges={simulatedChanges}
+          onSimulationChange={setSimulatedChanges}
+          onReset={() => setSimulatedChanges(NO_SIMULATED_CHANGES)}
+          labels={DEMOGRAPHICS_LABELS}
+        />
+      </div>
+
+      <div className="dashboard-page__results">
+        <MetricsComparisonSection
+          location={selectedLocation}
+          simulatedChanges={simulatedChanges}
+          leverChanges={leverChanges}
+          horizonYears={horizonYears}
+        />
+      </div>
     </main>
   );
 }

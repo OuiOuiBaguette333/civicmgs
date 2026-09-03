@@ -57,7 +57,7 @@ function getNoOptionsMessage({ inputValue }: { inputValue: string }) {
 const selectStyles: StylesConfig<SelectValue> = {
   control: (baseStyles: CSSObjectWithLabel, { isFocused }) => ({
     ...baseStyles,
-    backgroundColor: "var(--bg)",
+    backgroundColor: "var(--surface)",
     borderColor: isFocused ? "var(--accent-border)" : "var(--border)",
     borderRadius: "8px",
     boxShadow: "none",
@@ -69,9 +69,11 @@ const selectStyles: StylesConfig<SelectValue> = {
   placeholder: (baseStyles: CSSObjectWithLabel) => ({ ...baseStyles, color: "var(--text)" }),
   menu: (baseStyles: CSSObjectWithLabel) => ({
     ...baseStyles,
-    backgroundColor: "var(--bg)",
+    backgroundColor: "var(--surface)",
     border: "1px solid var(--border)",
+    boxShadow: "var(--shadow)",
   }),
+  menuPortal: (baseStyles: CSSObjectWithLabel) => ({ ...baseStyles, zIndex: 20 }),
   option: (baseStyles: CSSObjectWithLabel, { isFocused }) => ({
     ...baseStyles,
     backgroundColor: isFocused ? "var(--accent-bg)" : "transparent",
@@ -119,6 +121,8 @@ export function LocationSearchPanel({
         blurInputOnSelect
         inputId="location-select"
         placeholder={null}
+        // The control rail scrolls, which would otherwise clip the open menu.
+        menuPortalTarget={globalThis.document?.body}
         styles={selectStyles}
         value={selectValue}
         onChange={newValue =>

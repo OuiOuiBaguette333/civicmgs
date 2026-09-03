@@ -9,30 +9,67 @@ proposed change would mean for it.
 - Search any **Statistical Area Level 2** (SA2) in Victoria — roughly a suburb.
 - Pull that area's 2021 figures live from the [ABS Data API](https://www.abs.gov.au/statistics/application-programming-interfaces-apis/data-api-user-guide)
   (`ABS_REGIONAL_ASGS2021`) and compare them against Victoria as a whole.
-- Adjust a metric with a slider and see the simulated figure beside its baseline.
+- Move a **policy lever** — school funding, employment services, housing supply,
+  health funding — and see it projected onto those figures as a range, with the
+  research behind every number one click away.
+- Or adjust a metric directly, which scales it by itself and claims nothing.
 
-## What it does _not_ do yet
+## The projection model
 
-The sliders currently scale a metric by itself. **There is no causal model**: moving
-the income slider does not move employment or Year 12 completion, and nothing here
-should be read as a prediction.
+Moving a policy lever projects a change onto the census figures using published
+research. The model lives in `src/model` and is deliberately data, not code:
+`effects.ts` is a table anyone can audit without reading React.
 
-That is deliberate, because it is the hard part:
+Three rules keep it honest.
 
-1. **The census contains no policy levers.** There is no "education funding" column
-   at SA2. The census records _outcomes_ — attainment, income, unemployment — as a
-   stock at one moment. Funding lives in the Victorian budget papers, the
-   Productivity Commission's [Report on Government Services](https://www.pc.gov.au/ongoing/report-on-government-services),
-   and ABS Government Finance Statistics.
-2. **Correlation across suburbs is not a causal effect.** Areas with more educated
-   adults also have higher incomes and lower unemployment. Fitting a regression
-   across SA2s and calling the coefficient "the effect of funding" is the ecological
-   fallacy plus omitted-variable bias.
+**Everything is a range.** No projected figure is a point estimate. The central
+value is the study's own; where a bound is CivicLens's conservative floor for
+carrying an overseas estimate to Victoria, the derivation says so.
 
-The intended design is a small, auditable table of **published elasticities** — each
-with a source, an effect-size range and a time lag — rendering results as ranges
-rather than point estimates, with "no reliable evidence" shown wherever no such
-research exists.
+**Nothing moves overnight.** A census metric counts the whole adult population,
+but a school funding change reaches one school cohort at a time. Every effect
+declares a lag and a phase-in, and a projection only moves by the share of the
+population that has actually lived through the change. So +20% school funding
+shifts Year 12 completion by about 2 points over 20 years, not 19 — and by
+nothing at all for the first 13. Those timings are structural assumptions of this
+project, not findings of the studies, and the interface says which is which.
+
+**Links without a usable size project no number.** Employment services and
+housing supply have research agreeing on the direction and nothing that converts
+into a Victorian suburb, so they are typed as direction-only and cannot move a
+figure. Health funding has no entry at all. That asymmetry is the finding, not an
+omission: of four things routinely promised, one has a transferable causal
+estimate for these outcomes.
+
+Effects are summed, never chained. Compounding first-order estimates through
+education to income to employment turns small numbers into confident nonsense.
+
+### What the model is built on
+
+- Jackson, Johnson & Persico (2016), _The Quarterly Journal of Economics_ — a 10%
+  rise in per-pupil spending across all 12 school years raises high-school
+  graduation by 9.5 percentage points, adult wages by 7.25%, and cuts adult
+  poverty by 3.67 points. US school finance reforms, cohorts born 1955–1985.
+- Jackson & Mackevicius (2024), _AEJ: Applied Economics_ — $1,000 more per pupil
+  for four years raises college-going by 2.8 points, across US evaluations.
+- Leigh (2025), _Economic Papers_ — an extra year of schooling raises Australian
+  hourly wages by about 7%. HILDA, 2001–2022.
+- Card, Kluve & Weber (2018), _JEEA_ — across 200+ evaluations, employment
+  programmes average near zero in the short run and turn positive after two to
+  three years. No transferable effect size.
+- Mense (2025), _JPE Macroeconomics_ — new housing supply lowers rents on impact
+  and the effect fades within about a year. Munich rental listings.
+- Productivity Commission, _Report on Government Services 2026_ — $21,550 per
+  full-time student in government schools, 2023–24, used to price the funding
+  lever.
+
+## What it still does not do
+
+Levers cannot be expressed as dollars over a forward-estimates period yet, only as
+a sustained percentage change. Nothing accounts for people moving into or out of a
+suburb in response to a policy. And the strongest evidence in the table is American:
+carrying it to Victoria is an assumption the low bounds try to respect but cannot
+remove.
 
 ## Data notes
 
