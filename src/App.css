@@ -58,36 +58,37 @@
   margin-bottom: 8px;
 }
 
-.scenario-slider-row {
+.slider-row {
   margin-bottom: 14px;
 }
 
-.scenario-slider-row:last-child {
+.slider-row:last-child {
   margin-bottom: 0;
 }
 
-.scenario-slider-row {
+.slider-row {
   display: block;
 }
 
-.scenario-slider-row__legend {
+.slider-row__legend {
   display: block;
+  font-weight: 500;
   margin-bottom: 6px;
   color: var(--text-h);
 }
 
-.scenario-slider-row__controls {
+.slider-row__controls {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.scenario-slider-row input[type="range"] {
+.slider-row input[type="range"] {
   flex: 1;
   min-width: 0;
 }
 
-.scenario-slider-row input[type="number"] {
+.slider-row input[type="number"] {
   flex: none;
   appearance: textfield;
   border: 1px solid var(--border);
@@ -119,7 +120,7 @@
 .metrics-grid {
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
 .metric-card {
@@ -194,5 +195,129 @@
 
   & p {
     margin: 8px 0 16px;
+  }
+}
+
+.slider-row__description,
+.slider-row__warning {
+  font-size: 13px;
+  margin-bottom: 8px;
+  max-width: 68ch;
+}
+
+.slider-row__warning {
+  color: var(--caution);
+  margin-top: 6px;
+  margin-bottom: 0;
+}
+
+.scenario-panel__horizon {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.scenario-panel__horizon label {
+  color: var(--text-h);
+  font-size: 14px;
+}
+
+.metrics-grid {
+  align-items: start;
+}
+
+.projection {
+  border-top: 1px solid var(--border);
+  margin-top: 12px;
+  padding-top: 10px;
+}
+
+.projection__head {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 13px;
+  gap: 6px;
+  justify-content: space-between;
+}
+
+.projection__badge {
+  border: 1px solid currentcolor;
+  border-radius: 999px;
+  font-size: 11px;
+  padding: 1px 8px;
+  white-space: nowrap;
+}
+
+.projection__badge--strong {
+  color: var(--positive);
+}
+
+.projection__badge--moderate {
+  color: var(--caution);
+}
+
+.projection__badge--direction-only,
+.projection__badge--none {
+  color: var(--text);
+}
+
+.projection__range {
+  color: var(--text-h);
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.projection__empty {
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.projection__details {
+  font-size: 13px;
+  margin-top: 10px;
+
+  & summary {
+    color: var(--accent);
+    cursor: pointer;
+  }
+
+  & ul {
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 0;
+  }
+
+  & p {
+    margin-bottom: 6px;
+  }
+}
+
+.projection__source {
+  border-left: 2px solid var(--border);
+  margin-bottom: 12px;
+  padding-left: 10px;
+}
+
+.projection__source:last-child {
+  margin-bottom: 0;
+}
+
+.projection__source-head {
+  color: var(--text-h);
+  font-weight: 500;
+}
+
+.projection__citation {
+  overflow-wrap: anywhere;
+}
+
+/* An opened citation is a paragraph of prose, which is unreadable in a
+   single grid column. */
+@media (min-width: 720px) {
+  .metric-card:has(.projection__details[open]) {
+    grid-column: span 2;
   }
 }
