@@ -1,4 +1,5 @@
 import { type AreaShape, useChoroplethData } from "@hooks/useChoroplethData";
+import { useMapViewport } from "@hooks/useMapViewport";
 import type { Location } from "@types";
 import { BIN_COUNT, binOf, quantileBreaks } from "@utils/bins";
 import { DEMOGRAPHICS, DEMOGRAPHICS_META, type Demographic } from "@utils/demographics";
@@ -67,6 +68,27 @@ function MetricPicker({
   );
 }
 
+function MapControls({ viewport }: { viewport: ReturnType<typeof useMapViewport> }) {
+  return (
+    <div className="choropleth__controls">
+      <button type="button" onClick={viewport.zoomIn} aria-label="Zoom in">
+        +
+      </button>
+      <button type="button" onClick={viewport.zoomOut} aria-label="Zoom out">
+        &minus;
+      </button>
+      <button
+        type="button"
+        onClick={viewport.reset}
+        aria-label="Show the whole state"
+        disabled={viewport.zoom <= 1.001}
+      >
+        Reset
+      </button>
+    </div>
+  );
+}
+
 interface AreaPathsProps {
   shapes: AreaShape[];
   breaks: number[];
@@ -74,9 +96,18 @@ interface AreaPathsProps {
   selectedCode?: string;
   onHover: (shape: AreaShape) => void;
   onSelect: (location: Location) => void;
+  wasDragged: () => boolean;
 }
 
-function AreaPaths({ shapes, breaks, valueOf, selectedCode, onHover, onSelect }: AreaPathsProps) {
+function AreaPaths({
+  shapes,
+  breaks,
+  valueOf,
+  selectedCode,
+  onHover,
+  onSelect,
+  wasDragged,
+}: AreaPathsProps) {
   return (
     <>
       {shapes
@@ -91,8 +122,12 @@ function AreaPaths({ shapes, breaks, valueOf, selectedCode, onHover, onSelect }:
               key={shape.code}
               d={shape.d}
               className={`choropleth__area choropleth__area--${bin}${selected}`}
+              vectorEffect="non-scaling-stroke"
               onMouseEnter={() => onHover(shape)}
-              onClick={() => onSelect({ code: shape.code, name: shape.name })}
+              onClick={() => {
+                // A press that panned the map is not a choice of suburb.
+                if (!wasDragged()) onSelect({ code: shape.code, name: shape.name });
+              }}
             />
           );
         })}
@@ -108,10 +143,11 @@ export function ChoroplethMap({
 }: ChoroplethMapProps) {
   const state = useChoroplethData();
   const [hovered, setHovered] = useState<AreaShape | null>(null);
+  const viewport = useMapViewport(state.status === "ready" ? state.data.viewBox : "0 0 800 560");
 
   if (state.status === "loading") return <MapStatus>Loading the map…</MapStatus>;
 
-  const { viewBox, shapes, values } = state.data;
+  const { shapes, values } = state.data;
   const { format, label } = DEMOGRAPHICS_META[metric];
   const valueOf = (code: string) => values[code]?.[metric];
   const measured = shapes.map(shape => valueOf(shape.code)).filter(value => value !== undefined);
@@ -132,11 +168,14 @@ export function ChoroplethMap({
         <>
           <div className="choropleth__plot">
             <svg
-              className="choropleth__svg"
-              viewBox={viewBox}
+              ref={viewport.svgRef}
+              className={`choropleth__svg${viewport.panning ? " choropleth__svg--panning" : ""}`}
+              viewBox={viewport.viewBox}
               role="img"
-              aria-label={`${label} across ${measured.length} Victorian areas. Use the suburb search to select an area.`}
+              tabIndex={0}
+              aria-label={`${label} across ${measured.length} Victorian areas. Drag or use the arrow keys to move, scroll or press plus and minus to zoom, and the suburb search to select an area.`}
               onMouseLeave={() => setHovered(null)}
+              {...viewport.handlers}
             >
               <AreaPaths
                 shapes={shapes}
@@ -145,8 +184,11 @@ export function ChoroplethMap({
                 selectedCode={selectedCode}
                 onHover={setHovered}
                 onSelect={onSelect}
+                wasDragged={viewport.wasDragged}
               />
             </svg>
+
+            <MapControls viewport={viewport} />
           </div>
 
           <p className="choropleth__readout" role="status">

@@ -538,12 +538,41 @@ details.scenario-panel[open] .scenario-panel__summary {
 .choropleth__plot {
   margin: 0 auto;
   max-width: 620px;
+  position: relative;
 }
 
 .choropleth__svg {
+  cursor: grab;
   display: block;
   height: auto;
+  /* The map owns dragging and pinching, so the browser must not also scroll. */
+  touch-action: none;
   width: 100%;
+}
+
+.choropleth__svg--panning {
+  cursor: grabbing;
+}
+
+.choropleth__controls {
+  display: flex;
+  gap: var(--space-1);
+  left: var(--space-2);
+  position: absolute;
+  top: var(--space-2);
+}
+
+.choropleth__controls button {
+  backdrop-filter: blur(4px);
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  font-variant-numeric: tabular-nums;
+  min-width: 2rem;
+  padding: 0.3em 0.55em;
+
+  &:disabled {
+    color: var(--text-muted);
+    cursor: default;
+  }
 }
 
 /*
