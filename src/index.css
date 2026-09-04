@@ -21,6 +21,15 @@
 
   --shadow: rgb(16 16 14 / 6%) 0 6px 16px -4px, rgb(16 16 14 / 4%) 0 2px 4px -1px;
 
+  /* Map ramp: one hue, light to dark. The lightest step still clears 2:1 on
+     the surface, so the emptiest areas do not vanish into the page. */
+  --map-0: #86b6ef;
+  --map-1: #6da7ec;
+  --map-2: #5598e7;
+  --map-3: #2a78d6;
+  --map-4: #1c5cab;
+  --map-5: #104281;
+
   --sans: system-ui, "Segoe UI", roboto, sans-serif;
   --mono: ui-monospace, consolas, monospace;
 
@@ -75,6 +84,14 @@
     --caution: #e0b054;
 
     --shadow: rgb(0 0 0 / 45%) 0 8px 20px -6px, rgb(0 0 0 / 30%) 0 2px 6px -2px;
+
+    /* Stepped for the dark surface rather than inverted: more is brighter. */
+    --map-0: #184f95;
+    --map-1: #1c5cab;
+    --map-2: #2a78d6;
+    --map-3: #5598e7;
+    --map-4: #86b6ef;
+    --map-5: #b7d3f6;
   }
 }
 

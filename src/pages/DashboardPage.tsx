@@ -1,14 +1,16 @@
+import { ChoroplethMap } from "@components/ChoroplethMap";
 import { LocationSearchPanel } from "@components/LocationSearchPanel";
 import { MetricsComparisonSection } from "@components/MetricsComparisonSection";
 import { PolicyScenarioPanel } from "@components/PolicyScenarioPanel";
 import { SimulatorPanel } from "@components/SimulatorPanel";
 import { useScenario } from "@hooks/useScenario";
-import { DEMOGRAPHICS_LABELS, NO_SIMULATED_CHANGES } from "@utils/demographics";
+import { type Demographic, DEMOGRAPHICS_LABELS, NO_SIMULATED_CHANGES } from "@utils/demographics";
 import { useState } from "react";
 
 export function DashboardPage() {
   const scenario = useScenario();
   const [simulatedChanges, setSimulatedChanges] = useState(NO_SIMULATED_CHANGES);
+  const [mapMetric, setMapMetric] = useState<Demographic>("year12Completion");
 
   return (
     <main className="dashboard-page">
@@ -47,6 +49,13 @@ export function DashboardPage() {
       </div>
 
       <div className="dashboard-page__results">
+        <ChoroplethMap
+          metric={mapMetric}
+          onMetricChange={setMapMetric}
+          selectedCode={scenario.location?.code}
+          onSelect={scenario.setLocation}
+        />
+
         <MetricsComparisonSection
           location={scenario.location}
           simulatedChanges={simulatedChanges}

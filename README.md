@@ -95,6 +95,27 @@ remove.
 - Some measures are suppressed by the ABS for small or unusual areas. Those render
   as "Not available" rather than zero.
 
+## Building the map data
+
+The map ships pre-projected SVG paths rather than boundary geometry, so the app
+needs no mapping library at runtime. Both data files are generated once and
+committed.
+
+```bash
+# 1. Boundaries. Download the SA2 2021 layer as GeoJSON from the ABS or the
+#    Digital Atlas of Australia, then:
+npm run data:shapes -- SA2.geojson
+
+# 2. Figures for every Victorian SA2, fetched from the ABS API in batches.
+npm run data:metrics
+```
+
+`data:shapes` streams the input rather than parsing it whole — the national file
+is larger than most machines want to hold in memory — filters to Victoria,
+projects with a Mercator fitted to the state's extent, and simplifies in pixel
+space to about a third of a pixel. 522 areas come out at roughly 230 kB, loaded
+as its own lazy chunk.
+
 ## Setup
 
 ```bash

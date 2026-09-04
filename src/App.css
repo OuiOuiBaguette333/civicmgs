@@ -513,3 +513,132 @@ details.scenario-panel[open] .scenario-panel__summary {
     margin: var(--space-2) 0 var(--space-4);
   }
 }
+
+/* Map --------------------------------------------------------------------- */
+
+.choropleth {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+}
+
+.choropleth__head {
+  align-items: center;
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.choropleth__head label {
+  color: var(--text-h);
+  font-size: var(--text-sm);
+}
+
+.choropleth__plot {
+  margin: 0 auto;
+  max-width: 620px;
+}
+
+.choropleth__svg {
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
+/*
+ * Areas are separated by a hairline in the surface colour rather than by a
+ * drawn border, so the gap is negative space instead of extra ink.
+ */
+.choropleth__area {
+  cursor: pointer;
+  stroke: var(--surface);
+  stroke-width: 0.5;
+
+  &:hover {
+    stroke: var(--text-h);
+    stroke-width: 1.2;
+  }
+}
+
+.choropleth__area--selected {
+  stroke: var(--text-h);
+  stroke-width: 1.6;
+}
+
+.choropleth__area--0 {
+  fill: var(--map-0);
+}
+.choropleth__area--1 {
+  fill: var(--map-1);
+}
+.choropleth__area--2 {
+  fill: var(--map-2);
+}
+.choropleth__area--3 {
+  fill: var(--map-3);
+}
+.choropleth__area--4 {
+  fill: var(--map-4);
+}
+.choropleth__area--5 {
+  fill: var(--map-5);
+}
+.choropleth__area--none {
+  fill: var(--surface-2);
+}
+
+.choropleth__readout {
+  color: var(--text-h);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  margin-top: var(--space-2);
+  min-height: 1.5em;
+}
+
+.choropleth__legend {
+  color: var(--text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  gap: var(--space-1) var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.choropleth__key {
+  align-items: center;
+  display: flex;
+  gap: var(--space-1);
+}
+
+.choropleth__swatch {
+  border-radius: 2px;
+  display: inline-block;
+  height: 10px;
+  width: 14px;
+}
+
+.choropleth__swatch--0 {
+  background: var(--map-0);
+}
+.choropleth__swatch--1 {
+  background: var(--map-1);
+}
+.choropleth__swatch--2 {
+  background: var(--map-2);
+}
+.choropleth__swatch--3 {
+  background: var(--map-3);
+}
+.choropleth__swatch--4 {
+  background: var(--map-4);
+}
+.choropleth__swatch--5 {
+  background: var(--map-5);
+}
+
+.choropleth__swatch--none {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}

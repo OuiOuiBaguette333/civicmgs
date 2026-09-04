@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "data:shapes": "node --experimental-strip-types scripts/buildSA2Shapes.ts",
+    "data:metrics": "node --experimental-strip-types scripts/buildSA2Metrics.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "fmt": "oxfmt",
@@ -21,12 +23,14 @@
     "react-select": "^5.10.2"
   },
   "devDependencies": {
+    "@types/d3-geo": "^3.1.1",
     "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.5.0",
     "csvtojson": "^2.0.14",
+    "d3-geo": "^3.1.1",
     "oxfmt": "^0.48.0",
     "oxlint": "^1.62.0",
     "postcss": "^8.5.10",
