@@ -1,104 +1,164 @@
+/* Layout ------------------------------------------------------------------ */
+
 .dashboard-page {
-  text-align: left;
-  padding: 32px;
+  display: grid;
+  gap: var(--space-5);
+  padding: var(--space-5);
+
+  @media (width <= 640px) {
+    gap: var(--space-4);
+    padding: var(--space-4);
+  }
+}
+
+.dashboard-page__controls,
+.dashboard-page__results {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-}
-
-.dashboard-page__header h1 {
-  margin: 0 0 12px;
-  font-size: 38px;
-}
-
-.dashboard-page__eyebrow {
-  margin-bottom: 8px;
-  color: var(--accent);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 13px;
-}
-
-.location-panel,
-.metrics-section,
-.scenario-panel {
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-}
-
-.location-panel__label {
-  display: block;
-  margin-top: 12px;
-  margin-bottom: 6px;
-  font-size: 14px;
-  color: var(--text-h);
-}
-
-.metrics-section {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.scenario-panel {
-  text-align: left;
-}
-
-.scenario-panel__header {
-  display: flex;
-  align-items: start;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.scenario-panel h2 {
-  margin-bottom: 8px;
-}
-
-.slider-row {
-  margin-bottom: 14px;
-}
-
-.slider-row:last-child {
-  margin-bottom: 0;
-}
-
-.slider-row {
-  display: block;
-}
-
-.slider-row__legend {
-  display: block;
-  font-weight: 500;
-  margin-bottom: 6px;
-  color: var(--text-h);
-}
-
-.slider-row__controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.slider-row input[type="range"] {
-  flex: 1;
+  gap: var(--space-4);
   min-width: 0;
 }
 
-.slider-row input[type="number"] {
-  flex: none;
-  appearance: textfield;
+/*
+ * Wide enough for two columns: the controls stay put while the results scroll,
+ * so a slider and the figures it moves are on screen together.
+ */
+@media (width >= 1040px) {
+  .dashboard-page {
+    grid-template-areas:
+      "header  header"
+      "controls results";
+    grid-template-columns: minmax(300px, 350px) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .dashboard-page__header {
+    grid-area: header;
+  }
+
+  .dashboard-page__controls {
+    grid-area: controls;
+    position: sticky;
+    top: var(--space-5);
+  }
+
+  .dashboard-page__results {
+    grid-area: results;
+  }
+}
+
+.dashboard-page__header {
+  max-width: 78ch;
+}
+
+.dashboard-page__header h1 {
+  margin: var(--space-1) 0 var(--space-2);
+}
+
+.dashboard-page__eyebrow {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+/* Panels ------------------------------------------------------------------ */
+
+.location-panel,
+.scenario-panel {
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius);
+  padding: var(--space-4);
+}
+
+/* The results are cards on the page plane, not cards inside a card. */
+.metrics-section {
+  min-width: 0;
+}
+
+.location-panel > p,
+.scenario-panel__header p {
+  color: var(--text);
+  font-size: var(--text-sm);
+  margin-top: var(--space-1);
+}
+
+.location-panel__label {
+  color: var(--text-h);
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  margin: var(--space-3) 0 var(--space-1);
+}
+
+.scenario-panel__intro {
+  color: var(--text);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-4);
+}
+
+.scenario-panel__header {
+  align-items: center;
+  display: flex;
+  gap: var(--space-3);
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+
+.scenario-panel__summary {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  gap: var(--space-2);
+}
+
+.scenario-panel__flag {
+  background: var(--accent-bg);
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: var(--text-xs);
+  padding: 0 8px;
+}
+
+details.scenario-panel[open] .scenario-panel__summary {
+  margin-bottom: var(--space-2);
+}
+
+.scenario-panel__actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--space-2);
+}
+
+/* Entering a promise the way it was announced, beside the percentage it means. */
+.commitment {
+  align-items: center;
+  color: var(--text);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: var(--text-xs);
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+
+.commitment__lead {
+  color: var(--text-muted);
+}
+
+.commitment input[type="number"] {
+  appearance: textfield;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-h);
   font-family: inherit;
-  font-size: 1em;
-  margin-right: 1ch;
-  padding: 0.5em;
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  padding: 0.3em 0.4em;
   text-align: right;
-  width: 5ch;
+  width: 7ch;
 
   &::-webkit-inner-spin-button,
   &::-webkit-outer-spin-button {
@@ -107,75 +167,170 @@
   }
 }
 
-.metrics-section__header h2 {
-  margin-bottom: 6px;
+.commitment select {
+  font-size: var(--text-xs);
+  padding: 0.25em 0.4em;
 }
 
-.metrics-section__group h3 {
-  margin: 0 0 10px;
-  font-size: 18px;
+.scenario-panel__horizon {
+  align-items: center;
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.scenario-panel__horizon label {
   color: var(--text-h);
+  font-size: var(--text-sm);
 }
 
-.metrics-grid {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+/* Sliders ----------------------------------------------------------------- */
+
+.slider-row {
+  border-top: 1px solid var(--border);
+  display: block;
+  padding-top: var(--space-3);
+
+  & + .slider-row {
+    margin-top: var(--space-3);
+  }
 }
 
-.metric-card {
+.slider-row__legend {
+  color: var(--text-h);
+  display: block;
+  font-size: var(--text-md);
+  font-weight: 500;
+  margin-bottom: var(--space-1);
+}
+
+.slider-row__description,
+.slider-row__warning {
+  color: var(--text);
+  font-size: var(--text-xs);
+  margin-bottom: var(--space-2);
+}
+
+.slider-row__warning {
+  color: var(--caution);
+  margin: var(--space-2) 0 0;
+}
+
+.slider-row__controls {
+  align-items: center;
+  display: flex;
+  gap: var(--space-3);
+}
+
+.slider-row input[type="range"] {
+  flex: 1;
+  min-width: 0;
+}
+
+.slider-row input[type="number"] {
+  appearance: textfield;
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 12px;
-  background: var(--social-bg);
-}
-
-.metric-card__label {
-  font-size: 14px;
-  margin-bottom: 8px;
-}
-
-.metric-card__value {
-  font-size: 22px;
-  font-weight: 600;
+  border-radius: var(--radius-sm);
   color: var(--text-h);
-  margin-bottom: 6px;
-}
+  flex: none;
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  padding: 0.4em;
+  text-align: right;
+  width: 5.5ch;
 
-.metric-card__average,
-.metric-card__delta {
-  font-size: 14px;
-}
-
-@media (max-width: 720px) {
-  .dashboard-page {
-    padding: 20px;
-  }
-
-  .dashboard-page__header h1 {
-    font-size: 30px;
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
   }
 }
+
+/* Metrics ----------------------------------------------------------------- */
 
 .metrics-section__status {
   color: var(--text);
+  font-size: var(--text-md);
 }
 
-.metric-card__note,
-.metric-card__baseline {
-  font-size: 13px;
-  margin-bottom: 6px;
+.metrics-section__header {
+  margin-bottom: var(--space-4);
 }
 
-.metric-card__note {
+.metrics-section__header p {
   color: var(--text);
-  margin-top: -2px;
+  font-size: var(--text-sm);
+  margin-top: var(--space-1);
+}
+
+.metrics-section__group h3 {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  letter-spacing: 0.09em;
+  margin-bottom: var(--space-3);
+  text-transform: uppercase;
+}
+
+.metrics-grid {
+  column-gap: var(--space-3);
+  columns: 3 280px;
+}
+
+.metric-card {
+  break-inside: avoid;
+  margin-bottom: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+}
+
+.metric-card__label {
+  color: var(--text);
+  font-size: var(--text-sm);
+}
+
+.metric-card__value {
+  color: var(--text-h);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-top: var(--space-1);
 }
 
 .metric-card__value--empty {
-  color: var(--text);
-  font-size: 18px;
+  color: var(--text-muted);
+  font-size: var(--text-md);
   font-weight: 400;
+  line-height: 1.5;
+  padding: var(--space-2) 0;
+}
+
+.metric-card__note {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  margin-top: var(--space-1);
+}
+
+.metric-card__baseline {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  margin-top: var(--space-1);
+}
+
+.metric-card__compare {
+  display: flex;
+  flex-wrap: wrap;
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  gap: var(--space-1) var(--space-2);
+  margin-top: var(--space-2);
 }
 
 .metric-card__delta--positive {
@@ -186,67 +341,29 @@
   color: var(--negative);
 }
 
-.error-boundary {
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  margin: 32px;
-  padding: 20px;
-  text-align: left;
-
-  & p {
-    margin: 8px 0 16px;
-  }
-}
-
-.slider-row__description,
-.slider-row__warning {
-  font-size: 13px;
-  margin-bottom: 8px;
-  max-width: 68ch;
-}
-
-.slider-row__warning {
-  color: var(--caution);
-  margin-top: 6px;
-  margin-bottom: 0;
-}
-
-.scenario-panel__horizon {
-  align-items: center;
-  display: flex;
-  gap: 10px;
-  margin-bottom: 18px;
-}
-
-.scenario-panel__horizon label {
-  color: var(--text-h);
-  font-size: 14px;
-}
-
-.metrics-grid {
-  align-items: start;
-}
+/* Projection -------------------------------------------------------------- */
 
 .projection {
   border-top: 1px solid var(--border);
-  margin-top: 12px;
-  padding-top: 10px;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
 }
 
 .projection__head {
   align-items: center;
+  color: var(--text-muted);
   display: flex;
   flex-wrap: wrap;
-  font-size: 13px;
-  gap: 6px;
+  font-size: var(--text-xs);
+  gap: var(--space-1);
   justify-content: space-between;
 }
 
 .projection__badge {
   border: 1px solid currentcolor;
   border-radius: 999px;
-  font-size: 11px;
-  padding: 1px 8px;
+  font-size: 10px;
+  padding: 0 7px;
   white-space: nowrap;
 }
 
@@ -260,24 +377,26 @@
 
 .projection__badge--direction-only,
 .projection__badge--none {
-  color: var(--text);
+  color: var(--text-muted);
 }
 
 .projection__range {
   color: var(--text-h);
-  font-size: 18px;
+  font-size: var(--text-lg);
   font-weight: 600;
-  margin-top: 6px;
+  letter-spacing: -0.01em;
+  margin-top: var(--space-1);
 }
 
 .projection__empty {
-  font-size: 13px;
-  margin-top: 6px;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  margin-top: var(--space-1);
 }
 
 .projection__details {
-  font-size: 13px;
-  margin-top: 10px;
+  font-size: var(--text-xs);
+  margin-top: var(--space-2);
 
   & summary {
     color: var(--accent);
@@ -286,19 +405,19 @@
 
   & ul {
     list-style: none;
-    margin: 10px 0 0;
+    margin: var(--space-3) 0 0;
     padding: 0;
   }
 
   & p {
-    margin-bottom: 6px;
+    margin-bottom: var(--space-2);
   }
 }
 
 .projection__source {
   border-left: 2px solid var(--border);
-  margin-bottom: 12px;
-  padding-left: 10px;
+  margin-bottom: var(--space-3);
+  padding-left: var(--space-3);
 }
 
 .projection__source:last-child {
@@ -311,13 +430,86 @@
 }
 
 .projection__citation {
+  color: var(--text-muted);
   overflow-wrap: anywhere;
 }
 
-/* An opened citation is a paragraph of prose, which is unreadable in a
-   single grid column. */
-@media (min-width: 720px) {
-  .metric-card:has(.projection__details[open]) {
-    grid-column: span 2;
+/* Chart ------------------------------------------------------------------- */
+
+.chart {
+  margin-top: var(--space-2);
+  position: relative;
+}
+
+.chart__svg {
+  display: block;
+  height: auto;
+  overflow: visible;
+  width: 100%;
+}
+
+.chart__grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.chart__baseline,
+.chart__crosshair {
+  stroke: var(--border-strong);
+  stroke-width: 1;
+}
+
+.chart__band {
+  fill: var(--accent);
+  fill-opacity: 0.12;
+}
+
+.chart__line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+/* The ring keeps the marker legible where it crosses the band edge. */
+.chart__end {
+  fill: var(--accent);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.chart__axis,
+.chart__tick {
+  fill: var(--text-muted);
+  font-family: var(--sans);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A fully transparent fill is unreliable as a hit area, so make it explicit. */
+.chart__hit {
+  fill: transparent;
+  pointer-events: all;
+}
+
+.chart__readout {
+  color: var(--text-h);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  margin-top: var(--space-1);
+}
+
+/* Errors ------------------------------------------------------------------ */
+
+.error-boundary {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: var(--space-6);
+  padding: var(--space-5);
+
+  & p {
+    margin: var(--space-2) 0 var(--space-4);
   }
 }

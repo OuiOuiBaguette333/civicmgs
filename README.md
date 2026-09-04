@@ -12,6 +12,10 @@ proposed change would mean for it.
 - Move a **policy lever** — school funding, employment services, housing supply,
   health funding — and see it projected onto those figures as a range, with the
   research behind every number one click away.
+- Enter the promise the way it was announced — "$2.4 billion over four years" —
+  and see the sustained percentage change it actually amounts to.
+- Share any scenario as a link: the suburb, the levers and the horizon live in
+  the URL.
 - Or adjust a metric directly, which scales it by itself and claims nothing.
 
 ## The projection model
@@ -43,6 +47,14 @@ estimate for these outcomes.
 
 Effects are summed, never chained. Compounding first-order estimates through
 education to income to employment turns small numbers into confident nonsense.
+
+**Dollars into percentages.** Spending is announced as a total over a
+forward-estimates period; the model takes a sustained annual percentage. The
+conversion spreads the commitment evenly and divides by the annual spend it
+scales — for schools, 661,326.7 full-time equivalent Victorian government-school
+students at $21,550 each, about $14.25bn a year. So $2.4bn over four years is
+4.2%, not a transformation. The per-student figure is the national average,
+because the state breakdown is published only in the report's data tables.
 
 ### What the model is built on
 

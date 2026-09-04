@@ -78,6 +78,14 @@ export const CITATIONS = {
     url: "https://www.journals.uchicago.edu/doi/full/10.1086/733977",
     setting: "Munich, monthly rental listings",
   },
+  vicSchoolStudents2025: {
+    authors: "Department of Education (Victoria)",
+    year: 2025,
+    title: "Profile of Victorian government school students",
+    publication: "Victorian Department of Education, April 2025 edition",
+    url: "https://www.education.vic.gov.au/Documents/about/department/brochure-2025-april-edition.pdf",
+    setting: "Victorian government schools, February 2024 census",
+  },
   rogs2026: {
     authors: "Productivity Commission",
     year: 2026,

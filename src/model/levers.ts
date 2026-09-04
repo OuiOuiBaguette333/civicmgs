@@ -9,6 +9,18 @@ export const LEVERS = [
 
 export type LeverId = (typeof LEVERS)[number];
 
+/**
+ * What a percentage on the slider is worth in dollars, so a spending promise
+ * can be entered the way it is announced.
+ */
+export interface LeverCostBasis {
+  /** Annual spending the lever scales, in dollars. */
+  annualSpend: number;
+  /** How that figure was arrived at, shown to the reader. */
+  derivation: string;
+  sources: Citation[];
+}
+
 export interface Lever {
   id: LeverId;
   label: string;
@@ -17,11 +29,13 @@ export interface Lever {
   /** Roughly what a 10% move is worth, so the percentage means something. */
   scaleNote?: string;
   scaleSource?: Citation;
+  /** Present only where an annual spend can be sourced for this lever. */
+  costBasis?: LeverCostBasis;
 }
 
 export const LEVER_MIN = -50;
 export const LEVER_MAX = 50;
-export const LEVER_STEP = 1;
+export const LEVER_STEP = 0.5;
 
 /**
  * The studies behind the model observed changes of roughly this size. Past it,
@@ -33,26 +47,32 @@ export const LEVERS_BY_ID: Record<LeverId, Lever> = {
   schoolFunding: {
     id: "schoolFunding",
     label: "School funding per student",
-    description:
-      "A sustained change in recurrent government spending per government-school student.",
+    description: "Recurrent government spending per government-school student.",
     scaleNote:
-      "10% is about $2,155 more per student each year, against a national average of $21,550 per full-time student in 2023–24.",
+      "10% is about $2,155 more a year, against a national average of $21,550 per full-time student in 2023–24.",
     scaleSource: CITATIONS.rogs2026,
+    costBasis: {
+      // 661,326.7 FTE students x $21,550 per student.
+      annualSpend: 14_251_590_385,
+      derivation:
+        "661,326.7 full-time equivalent students in Victorian government schools at the February 2024 census, at $21,550 per student in government recurrent expenditure. The per-student figure is the national average for 2023–24 excluding user cost of capital, because the state breakdown is published only in the report's data tables.",
+      sources: [CITATIONS.vicSchoolStudents2025, CITATIONS.rogs2026],
+    },
   },
   employmentServices: {
     id: "employmentServices",
     label: "Employment services",
-    description: "A sustained change in spending on job-search help, training and wage subsidies.",
+    description: "Spending on job-search help, training and wage subsidies.",
   },
   housingSupply: {
     id: "housingSupply",
     label: "New housing supply",
-    description: "A sustained change in the rate at which new dwellings are completed.",
+    description: "The rate at which new dwellings are completed.",
   },
   healthFunding: {
     id: "healthFunding",
     label: "Health funding",
-    description: "A sustained change in government health spending.",
+    description: "Government health spending.",
   },
 };
 

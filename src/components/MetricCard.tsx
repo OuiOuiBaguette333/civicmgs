@@ -41,10 +41,16 @@ export function MetricCard({
 
       {baseline && <p className="metric-card__baseline">Baseline: {baseline}</p>}
 
-      {stateValue && <p className="metric-card__average">{stateValue}</p>}
+      {(stateValue || delta) && (
+        <div className="metric-card__compare">
+          {stateValue && <span className="metric-card__average">{stateValue}</span>}
 
-      {delta && (
-        <p className={`metric-card__delta metric-card__delta--${delta.tone}`}>{delta.label}</p>
+          {delta && (
+            <span className={`metric-card__delta metric-card__delta--${delta.tone}`}>
+              {delta.label}
+            </span>
+          )}
+        </div>
       )}
 
       {footer}

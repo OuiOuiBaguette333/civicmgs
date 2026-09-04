@@ -1,3 +1,4 @@
+import { ProjectionChart } from "@components/ProjectionChart";
 import type { DirectionalEffect } from "@model/effects";
 import {
   type Citation,
@@ -6,13 +7,15 @@ import {
   type EvidenceStrength,
 } from "@model/evidence";
 import { LEVERS_BY_ID } from "@model/levers";
-import type { Contribution, Projection } from "@model/project";
+import type { Contribution, Projection, SeriesPoint } from "@model/project";
 import { DEMOGRAPHICS_META } from "@utils/demographics";
 import formatValue from "@utils/format";
 
 interface MetricProjectionProps {
   projection: Projection;
   horizonYears: number;
+  label: string;
+  series: SeriesPoint[];
 }
 
 function overallStrength({ contributions, unquantified }: Projection): EvidenceStrength {
@@ -86,7 +89,12 @@ function DirectionDetail({ effect }: { effect: DirectionalEffect }) {
   );
 }
 
-export function MetricProjection({ projection, horizonYears }: MetricProjectionProps) {
+export function MetricProjection({
+  projection,
+  horizonYears,
+  label,
+  series,
+}: MetricProjectionProps) {
   const { contributions, unquantified, projected } = projection;
   const { format } = DEMOGRAPHICS_META[projection.outcome];
   const strength = overallStrength(projection);
@@ -105,7 +113,17 @@ export function MetricProjection({ projection, horizonYears }: MetricProjectionP
       </p>
 
       {contributions.length > 0 ? (
-        <p className="projection__range">{low === high ? low : `${low} – ${high}`}</p>
+        <>
+          <p className="projection__range">{low === high ? low : `${low} – ${high}`}</p>
+
+          <ProjectionChart
+            points={series}
+            baseline={projection.baseline}
+            format={format}
+            label={label}
+            startYear={targetYear - horizonYears}
+          />
+        </>
       ) : (
         <p className="projection__empty">{EVIDENCE_NOTES[strength]}</p>
       )}

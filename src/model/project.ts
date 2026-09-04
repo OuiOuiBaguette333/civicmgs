@@ -144,3 +144,32 @@ export function project(
 
 export const hasAnyLeverChange = (levers: LeverChanges) =>
   Object.values(levers).some(change => change !== 0);
+
+export interface SeriesPoint {
+  yearsAhead: number;
+  low: number;
+  central: number;
+  high: number;
+}
+
+/**
+ * The projection sampled year by year, so a lag reads as a flat stretch and a
+ * phase-in as a widening fan. Without it the model's timing is a sentence
+ * nobody reads instead of a shape everybody sees.
+ */
+export function projectSeries(
+  outcome: Demographic,
+  baseline: number,
+  levers: LeverChanges,
+  horizonYears: number,
+  effects: Effect[] = EFFECTS,
+): SeriesPoint[] {
+  const steps = Math.max(Math.round(horizonYears), 1);
+
+  return Array.from({ length: steps + 1 }, (_, step) => {
+    const yearsAhead = (step / steps) * horizonYears;
+    const { projected } = projectOutcome(outcome, baseline, levers, yearsAhead, effects);
+
+    return { yearsAhead, ...projected };
+  });
+}

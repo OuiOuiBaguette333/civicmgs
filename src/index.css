@@ -1,62 +1,84 @@
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --accent: rgb(61, 113, 255);
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(61, 113, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
+  /* Surfaces: the page plane sits behind cards rather than being the card. */
+  --page: #f6f6f3;
+  --surface: #fff;
+  --surface-2: #f1f1ed;
+  --border: #e3e3dd;
+  --border-strong: #cfcfc7;
+
+  /* Ink. Muted still clears 4.5:1 on the surface, since it labels axes. */
+  --text: #56554f;
+  --text-h: #131311;
+  --text-muted: #74736d;
+
+  --accent: #2a5cf0;
+  --accent-bg: rgb(42 92 240 / 8%);
+  --accent-border: rgb(42 92 240 / 45%);
+
   --positive: #14713d;
   --negative: #a32330;
-  --caution: #8a5a09;
-  --shadow: rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  --caution: #85570a;
 
-  --sans: system-ui, "Segoe UI", Roboto, sans-serif;
-  --heading: system-ui, "Segoe UI", Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --shadow: rgb(16 16 14 / 6%) 0 6px 16px -4px, rgb(16 16 14 / 4%) 0 2px 4px -1px;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
+  --sans: system-ui, "Segoe UI", roboto, sans-serif;
+  --mono: ui-monospace, consolas, monospace;
+
+  --text-xs: 0.72rem;
+  --text-sm: 0.8rem;
+  --text-md: 0.875rem;
+  --text-lg: 1.05rem;
+  --text-xl: 1.55rem;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  --radius: 12px;
+  --radius-sm: 8px;
+
+  font: 16px/1.5 var(--sans);
   color-scheme: light dark;
   color: var(--text);
-  background: var(--bg);
+  background: var(--page);
   font-synthesis: none;
-  text-rendering: optimizeLegibility;
+  text-rendering: optimizelegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
+  @media (width <= 640px) {
+    font-size: 15px;
   }
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --accent: rgb(131, 163, 252);
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(131, 163, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
+    --page: #101013;
+    --surface: #17181c;
+    --surface-2: #1e2026;
+    --border: #2a2c33;
+    --border-strong: #3c3f48;
+
+    --text: #a2a5ae;
+    --text-h: #f2f3f5;
+    --text-muted: #8b8f99;
+
+    --accent: #7ea2ff;
+    --accent-bg: rgb(126 162 255 / 12%);
+    --accent-border: rgb(126 162 255 / 45%);
+
     --positive: #5cd68f;
     --negative: #f4838d;
     --caution: #e0b054;
-    --shadow: rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+
+    --shadow: rgb(0 0 0 / 45%) 0 8px 20px -6px, rgb(0 0 0 / 30%) 0 2px 6px -2px;
   }
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
+* {
   box-sizing: border-box;
 }
 
@@ -64,33 +86,35 @@ body {
   margin: 0;
 }
 
+#root {
+  margin: 0 auto;
+  max-width: 1440px;
+  min-height: 100svh;
+}
+
 h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
+h2,
+h3 {
   color: var(--text-h);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 0;
 }
 
 h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
+  font-size: 1.75rem;
 
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+  @media (width <= 640px) {
+    font-size: 1.45rem;
   }
 }
 
 h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
+  font-size: var(--text-lg);
+}
 
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
+h3 {
+  font-size: var(--text-md);
 }
 
 p {
@@ -111,20 +135,29 @@ fieldset {
   width: 100%;
 }
 
-button {
-  background: none;
+button,
+select {
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   color: var(--text-h);
   cursor: pointer;
   font-family: inherit;
-  font-size: 0.85em;
-  padding: 0.5em 1em;
+  font-size: var(--text-sm);
+  padding: 0.45em 0.85em;
 
   &:hover {
     border-color: var(--accent-border);
-    color: var(--accent);
   }
+}
+
+input[type="range"] {
+  accent-color: var(--accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .visually-hidden {
@@ -137,14 +170,4 @@ button {
   clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
-}
-
-select {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--text-h);
-  font-family: inherit;
-  font-size: 0.85em;
-  padding: 0.45em 0.6em;
 }

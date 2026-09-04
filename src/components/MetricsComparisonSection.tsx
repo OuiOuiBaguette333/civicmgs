@@ -3,7 +3,7 @@ import { MetricProjection } from "@components/MetricProjection";
 import { YEAR } from "@data/abs";
 import { type RegionDemographics, useRegionDemographics } from "@hooks/useRegionDemographics";
 import type { LeverChanges } from "@model/levers";
-import { hasAnyLeverChange, project } from "@model/project";
+import { hasAnyLeverChange, project, type Projection, projectSeries } from "@model/project";
 import type { Location } from "@types";
 import {
   DEMOGRAPHICS,
@@ -59,6 +59,48 @@ function buildCards(
           : undefined,
     };
   });
+}
+
+interface MetricsGridProps {
+  cards: MetricCardWithKey[];
+  projections: Partial<Record<Demographic, Projection>>;
+  leverChanges: LeverChanges;
+  horizonYears: number;
+  showProjections: boolean;
+}
+
+function MetricsGrid({
+  cards,
+  projections,
+  leverChanges,
+  horizonYears,
+  showProjections,
+}: MetricsGridProps) {
+  return (
+    <div className="metrics-grid">
+      {cards.map(({ metric, ...card }) => {
+        const projection = projections[metric];
+
+        return (
+          <MetricCard
+            key={metric}
+            {...card}
+            footer={
+              showProjections &&
+              projection && (
+                <MetricProjection
+                  projection={projection}
+                  horizonYears={horizonYears}
+                  label={card.label}
+                  series={projectSeries(metric, projection.baseline, leverChanges, horizonYears)}
+                />
+              )
+            }
+          />
+        );
+      })}
+    </div>
+  );
 }
 
 function statusMessage(state: RegionDemographics) {
@@ -122,24 +164,13 @@ export function MetricsComparisonSection({
       <div className="metrics-section__group">
         <h3>Demographics</h3>
 
-        <div className="metrics-grid">
-          {cards.map(({ metric, ...card }) => {
-            const projection = projections[metric];
-
-            return (
-              <MetricCard
-                key={metric}
-                {...card}
-                footer={
-                  showProjections &&
-                  projection && (
-                    <MetricProjection projection={projection} horizonYears={horizonYears} />
-                  )
-                }
-              />
-            );
-          })}
-        </div>
+        <MetricsGrid
+          cards={cards}
+          projections={projections}
+          leverChanges={leverChanges}
+          horizonYears={horizonYears}
+          showProjections={showProjections}
+        />
       </div>
     </section>
   );

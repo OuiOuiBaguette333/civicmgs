@@ -27,15 +27,16 @@ export function SimulatorPanel<T extends Record<string, number>>({
   const isModified = Object.values(simulatedChanges).some(value => value !== 0);
 
   return (
-    <section className="scenario-panel">
+    <details className="scenario-panel">
+      <summary className="scenario-panel__summary">
+        <h2>Direct adjustment</h2>
+        {isModified && <span className="scenario-panel__flag">active</span>}
+      </summary>
+
       <div className="scenario-panel__header">
-        <div>
-          <h2>Direct adjustment</h2>
-          <p>
-            Scales a figure by itself, with no claim about cause. Nothing here feeds the projection
-            below.
-          </p>
-        </div>
+        <p>
+          Scales a figure by itself, with no claim about cause. It does not feed the projection.
+        </p>
 
         {isModified && (
           <button type="button" onClick={onReset}>
@@ -56,6 +57,6 @@ export function SimulatorPanel<T extends Record<string, number>>({
           onChange={newValue => handleChange(metric, newValue)}
         />
       ))}
-    </section>
+    </details>
   );
 }
