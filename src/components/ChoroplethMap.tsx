@@ -1,10 +1,14 @@
 import { type AreaShape, useChoroplethData } from "@hooks/useChoroplethData";
+import { useDetailShapes } from "@hooks/useDetailShapes";
 import { useMapViewport } from "@hooks/useMapViewport";
 import type { Location } from "@types";
 import { BIN_COUNT, binOf, quantileBreaks } from "@utils/bins";
 import { DEMOGRAPHICS, DEMOGRAPHICS_META, type Demographic } from "@utils/demographics";
 import formatValue from "@utils/format";
 import { useState, type ReactNode } from "react";
+
+/** Zoom at which the coarse outlines start to show their corners. */
+const DETAIL_ZOOM = 3;
 
 interface ChoroplethMapProps {
   metric: Demographic;
@@ -97,6 +101,7 @@ interface AreaPathsProps {
   onHover: (shape: AreaShape) => void;
   onSelect: (location: Location) => void;
   wasDragged: () => boolean;
+  detail: Record<string, string> | null;
 }
 
 function AreaPaths({
@@ -107,6 +112,7 @@ function AreaPaths({
   onHover,
   onSelect,
   wasDragged,
+  detail,
 }: AreaPathsProps) {
   return (
     <>
@@ -120,7 +126,7 @@ function AreaPaths({
           return (
             <path
               key={shape.code}
-              d={shape.d}
+              d={detail?.[shape.code] ?? shape.d}
               className={`choropleth__area choropleth__area--${bin}${selected}`}
               vectorEffect="non-scaling-stroke"
               onMouseEnter={() => onHover(shape)}
@@ -144,6 +150,7 @@ export function ChoroplethMap({
   const state = useChoroplethData();
   const [hovered, setHovered] = useState<AreaShape | null>(null);
   const viewport = useMapViewport(state.status === "ready" ? state.data.viewBox : "0 0 800 560");
+  const detail = useDetailShapes(viewport.zoom > DETAIL_ZOOM);
 
   if (state.status === "loading") return <MapStatus>Loading the map…</MapStatus>;
 
@@ -185,6 +192,7 @@ export function ChoroplethMap({
                 onHover={setHovered}
                 onSelect={onSelect}
                 wasDragged={viewport.wasDragged}
+                detail={detail}
               />
             </svg>
 

@@ -5,8 +5,6 @@ export interface AreaShape {
   code: string;
   name: string;
   d: string;
-  cx: number;
-  cy: number;
 }
 
 interface ChoroplethData {

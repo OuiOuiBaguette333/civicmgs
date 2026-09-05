@@ -111,10 +111,20 @@ npm run data:metrics
 ```
 
 `data:shapes` streams the input rather than parsing it whole — the national file
-is larger than most machines want to hold in memory — filters to Victoria,
-projects with a Mercator fitted to the state's extent, and simplifies in pixel
-space to about a third of a pixel. 522 areas come out at roughly 230 kB, loaded
-as its own lazy chunk.
+is larger than most machines want to hold in memory — filters to Victoria, and
+projects with a Mercator fitted to the state's extent.
+
+Simplification then runs over a **topology**, not over each polygon. Two
+neighbours share one border; simplifying their copies of it separately leaves
+each drawing a different straight line between the same points, and the mismatch
+shows as slivers of background between them when you zoom in. Extracting the
+shared arcs first means a border is simplified once and both polygons rebuild
+from it, so the map tessellates at any tolerance.
+
+It writes two levels. The coarse set (522 areas, ~230 kB, 62 kB over the wire)
+loads with the map; the detailed set (~970 kB, 156 kB over the wire) is fetched
+only once someone zooms past 3x, and never at all for a reader who just looks at
+Victoria. Paths use relative commands, which is worth about a third of the bytes.
 
 ## Setup
 

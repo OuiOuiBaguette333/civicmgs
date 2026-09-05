@@ -1,26 +1,39 @@
-// Turns an ABS SA2 boundary file into pre-projected SVG paths.
+// Turns an ABS SA2 boundary file into pre-projected SVG paths, at two levels
+// of detail.
 //
 //   npm run data:shapes -- [path-to-geojson]
 //
-// Projecting and simplifying here rather than in the browser means the app
-// ships path strings and needs no geographic libraries at all.
+// Simplification runs over a *topology* rather than over each polygon. Two
+// neighbours share one border; simplifying their copies of it independently
+// leaves each drawing a different straight-line approximation, and the
+// mismatch shows as slivers of background between them when zoomed in.
+// Extracting shared arcs first means a border is simplified once and both
+// polygons rebuild from the same points, so the map tessellates at any
+// tolerance.
+//
+// Projecting here rather than in the browser means the app ships path strings
+// and needs no geographic libraries at all.
 
 import { writeFile } from "node:fs/promises";
 import { resolve as resolvePath } from "node:path";
 
 import { geoMercator } from "d3-geo";
+import { feature } from "topojson-client";
+import { topology } from "topojson-server";
+import { planarTriangleArea, presimplify, simplify } from "topojson-simplify";
 
 import { streamFeatures } from "./streamFeatures.ts";
 
 type Position = [number, number];
 
 interface Feature {
-  properties: Record<string, unknown>;
+  properties?: Record<string, unknown>;
   geometry: { type: string; coordinates: unknown } | null;
 }
 
 const INPUT = process.argv[2] ?? "raw-sa2.geojson";
-const OUTPUT = "../src/data/abs/SA2_VIC_shapes.json";
+const OUTPUT_COARSE = "../src/data/abs/SA2_VIC_shapes.json";
+const OUTPUT_DETAIL = "../src/data/abs/SA2_VIC_shapes_detail.json";
 
 /** Victorian SA2 codes all begin with the state's ASGS code. */
 const VICTORIA_PREFIX = "2";
@@ -29,8 +42,17 @@ const WIDTH = 800;
 const HEIGHT = 560;
 const PADDING = 8;
 
-/** Pixels of detail worth keeping, at the size the map is drawn. */
-const TOLERANCE = 0.35;
+/**
+ * Minimum triangle area, in square pixels of the whole-state view, for a point
+ * to survive. The coarse level is what loads first; the detail level is fetched
+ * only once someone zooms in.
+ */
+const COARSE_WEIGHT = 0.12;
+const DETAIL_WEIGHT = 0.0015;
+
+/** Sub-pixel precision is invisible, and dropping it before building the
+ *  topology saves a great deal of memory on a file this size. */
+const INGEST_PRECISION = 2;
 
 const CODE_KEYS = ["SA2_CODE_2021", "sa2_code_2021", "SA2_CODE21", "SA2_MAIN21"];
 const NAME_KEYS = ["SA2_NAME_2021", "sa2_name_2021", "SA2_NAME21"];
@@ -45,90 +67,34 @@ const pick = (properties: Record<string, unknown> | undefined, keys: string[]) =
   }
 };
 
-/** Perpendicular distance from `point` to the line through `start` and `end`. */
-function distanceToLine(point: Position, start: Position, end: Position) {
-  const [x, y] = point;
-  const [x1, y1] = start;
-  const [x2, y2] = end;
-  const dx = x2 - x1;
-  const dy = y2 - y1;
-  const length = Math.hypot(dx, dy);
-
-  if (length === 0) return Math.hypot(x - x1, y - y1);
-
-  return Math.abs(dy * x - dx * y + x2 * y1 - y2 * x1) / length;
-}
-
-/** Ramer–Douglas–Peucker, run in projected space so the tolerance is in pixels. */
-function simplify(points: Position[], tolerance: number): Position[] {
-  if (points.length <= 2) return points;
-
-  let worst = 0;
-  let index = 0;
-
-  for (let i = 1; i < points.length - 1; i += 1) {
-    const distance = distanceToLine(points[i], points[0], points.at(-1)!);
-
-    if (distance > worst) {
-      worst = distance;
-      index = i;
-    }
-  }
-
-  if (worst <= tolerance) return [points[0], points.at(-1)!];
-
-  return [
-    ...simplify(points.slice(0, index + 1), tolerance).slice(0, -1),
-    ...simplify(points.slice(index), tolerance),
-  ];
-}
-
 const ringsOf = (geometry: Feature["geometry"]): Position[][] => {
   if (!geometry) return [];
   if (geometry.type === "Polygon") return geometry.coordinates as Position[][];
-  if (geometry.type === "MultiPolygon") {
-    return (geometry.coordinates as Position[][][]).flat();
-  }
+  if (geometry.type === "MultiPolygon") return (geometry.coordinates as Position[][][]).flat();
 
   return [];
 };
 
-const area = (ring: Position[]) => {
-  let total = 0;
-
-  for (const [index, [x, y]] of ring.entries()) {
-    const [nextX, nextY] = ring[(index + 1) % ring.length];
-    total += x * nextY - nextX * y;
-  }
-
-  return Math.abs(total) / 2;
-};
-
-const toPath = (rings: Position[][]) =>
-  rings
-    .map(ring => `M${ring.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join("L")}Z`)
-    .join("");
+const isVictorian = (candidate: Feature) =>
+  pick(candidate.properties, CODE_KEYS)?.startsWith(VICTORIA_PREFIX) === true &&
+  candidate.geometry !== null;
 
 const inputPath = resolvePath(process.cwd(), INPUT);
 
-const isVictorian = (feature: Feature) =>
-  pick(feature.properties, CODE_KEYS)?.startsWith(VICTORIA_PREFIX) === true &&
-  feature.geometry !== null;
-
-// Pass one: the extent, so the projection can be fitted before anything is
-// projected. Only four numbers are retained, whatever the file's size.
+// Pass one: the extent, so the projection is fitted before anything is
+// projected. Only four numbers are kept, whatever the file's size.
 let minLongitude = Infinity;
 let minLatitude = Infinity;
 let maxLongitude = -Infinity;
 let maxLatitude = -Infinity;
 let found = 0;
 
-for await (const feature of streamFeatures<Feature>(inputPath)) {
-  if (!isVictorian(feature)) continue;
+for await (const item of streamFeatures<Feature>(inputPath)) {
+  if (!isVictorian(item)) continue;
 
   found += 1;
 
-  for (const ring of ringsOf(feature.geometry)) {
+  for (const ring of ringsOf(item.geometry)) {
     for (const [longitude, latitude] of ring) {
       minLongitude = Math.min(minLongitude, longitude);
       maxLongitude = Math.max(maxLongitude, longitude);
@@ -141,13 +107,11 @@ for await (const feature of streamFeatures<Feature>(inputPath)) {
 if (found === 0) throw new Error(`No Victorian SA2 features found in ${inputPath}.`);
 
 /**
- * Fitted to the raw extent rather than to the features themselves. d3's
- * geoPath treats a clockwise ring as covering the rest of the planet, and
- * boundary exports do not guarantee winding order — fitting to a bounding box
- * of plain points cannot be misread that way.
- *
- * Mercator rather than a conic: across a single state the distortion is
- * imperceptible, and it stays monotonic in latitude so the fit is exact.
+ * Fitted to the raw extent rather than to the features. d3's geoPath reads a
+ * clockwise ring as covering the rest of the planet, and boundary exports do
+ * not guarantee winding order — a bounding box of plain points cannot be
+ * misread that way. Mercator rather than a conic: across one state the
+ * distortion is imperceptible, and it stays monotonic in latitude.
  */
 const projection = geoMercator().fitExtent(
   [
@@ -163,76 +127,141 @@ const projection = geoMercator().fitExtent(
   } as never,
 );
 
-/** Area-weighted centroid of a projected ring. */
-function centroidOf(rings: Position[][]): Position {
-  const ring = rings.reduce((largest, candidate) =>
-    area(candidate) > area(largest) ? candidate : largest,
-  );
+const round = (value: number, places: number) => Number(value.toFixed(places));
 
-  let twiceArea = 0;
-  let x = 0;
-  let y = 0;
+/** Projects a ring, dropping points that round onto their predecessor. */
+function projectRing(ring: Position[]): Position[] {
+  const out: Position[] = [];
 
-  for (const [index, [px, py]] of ring.entries()) {
-    const [qx, qy] = ring[(index + 1) % ring.length];
-    const cross = px * qy - qx * py;
+  for (const position of ring) {
+    const projected = projection(position);
 
-    twiceArea += cross;
-    x += (px + qx) * cross;
-    y += (py + qy) * cross;
+    if (!projected) continue;
+
+    const point: Position = [
+      round(projected[0], INGEST_PRECISION),
+      round(projected[1], INGEST_PRECISION),
+    ];
+    const last = out.at(-1);
+
+    if (!last || last[0] !== point[0] || last[1] !== point[1]) out.push(point);
   }
 
-  if (twiceArea === 0) return ring[0];
-
-  return [x / (3 * twiceArea), y / (3 * twiceArea)];
+  return out;
 }
 
-// Pass two: project and simplify each feature as it arrives, keeping only the
-// finished path string.
-const shapes: { code: string; name: string; d: string; cx: number; cy: number }[] = [];
+// Pass two: project every Victorian feature into pixel space, so the topology
+// and its tolerances are both in the units the map is drawn in.
+const projected: {
+  type: "Feature";
+  properties: { code: string; name: string };
+  geometry: { type: "MultiPolygon"; coordinates: Position[][][] };
+}[] = [];
 
-for await (const feature of streamFeatures<Feature>(inputPath)) {
-  if (isVictorian(feature)) {
-    const code = pick(feature.properties, CODE_KEYS)!;
-    const name = pick(feature.properties, NAME_KEYS) ?? code;
+for await (const item of streamFeatures<Feature>(inputPath)) {
+  if (!isVictorian(item)) continue;
 
-    const projected = ringsOf(feature.geometry)
-      .map(ring => ring.map(position => projection(position)).filter(Boolean) as Position[])
-      .filter(ring => ring.length >= 4);
+  const code = pick(item.properties, CODE_KEYS)!;
+  const rings = ringsOf(item.geometry)
+    .map(ring => projectRing(ring))
+    .filter(ring => ring.length >= 4);
 
-    const simplified = projected
-      .map(ring => simplify(ring, TOLERANCE))
-      // A ring simplified into a sliver is not worth drawing, but a feature
-      // must never vanish entirely or its suburb becomes unclickable.
-      .filter(ring => ring.length >= 4 && area(ring) > 0.5);
+  if (rings.length === 0) continue;
 
-    const rings = simplified.length > 0 ? simplified : projected.slice(0, 1);
-    const [centreX, centreY] = centroidOf(rings);
+  projected.push({
+    type: "Feature",
+    properties: { code, name: pick(item.properties, NAME_KEYS) ?? code },
+    geometry: { type: "MultiPolygon", coordinates: rings.map(ring => [ring]) },
+  });
+}
 
-    const d = toPath(rings);
+const built = topology({ areas: { type: "FeatureCollection", features: projected } } as never);
+const weighted = presimplify(built as never, planarTriangleArea);
 
-    if (d !== "") {
-      shapes.push({
-        code,
-        name,
-        d,
-        cx: Number(centreX.toFixed(1)),
-        cy: Number(centreY.toFixed(1)),
-      });
+/** Absolute move, then relative lines: the deltas are small numbers, which is
+ *  most of a third off the file compared with absolute coordinates. */
+function toPath(rings: Position[][]) {
+  const parts: string[] = [];
+
+  for (const ring of rings) {
+    let cursorX = 0;
+    let cursorY = 0;
+
+    for (const [index, [x, y]] of ring.entries()) {
+      if (index === 0) {
+        cursorX = round(x, 1);
+        cursorY = round(y, 1);
+        parts.push(`M${cursorX} ${cursorY}`);
+        continue;
+      }
+
+      const dx = round(x - cursorX, 1);
+      const dy = round(y - cursorY, 1);
+
+      if (dx === 0 && dy === 0) continue;
+
+      // Advanced by the rounded delta, so error cannot accumulate along a ring.
+      cursorX = round(cursorX + dx, 1);
+      cursorY = round(cursorY + dy, 1);
+      parts.push(`l${dx} ${dy}`);
     }
+
+    parts.push("Z");
   }
+
+  return parts.join("");
 }
 
-shapes.sort((a, b) => a.code.localeCompare(b.code));
+function pathsAt(weight: number) {
+  const collection = feature(simplify(weighted, weight) as never, "areas" as never) as never as {
+    features: {
+      properties: { code: string; name: string };
+      geometry: { type: string; coordinates: Position[][][] | Position[][] } | null;
+    }[];
+  };
 
-const output = { viewBox: `0 0 ${WIDTH} ${HEIGHT}`, shapes };
-const outputPath = resolvePath(import.meta.dirname, OUTPUT);
+  const paths = new Map<string, { name: string; d: string; points: number }>();
 
-await writeFile(outputPath, JSON.stringify(output));
+  for (const item of collection.features) {
+    const rings = ringsOf(item.geometry as Feature["geometry"]).filter(ring => ring.length >= 4);
 
-const points = shapes.reduce((total, shape) => total + shape.d.split("L").length, 0);
+    if (rings.length === 0) continue;
+
+    paths.set(item.properties.code, {
+      name: item.properties.name,
+      d: toPath(rings),
+      points: rings.reduce((total, ring) => total + ring.length, 0),
+    });
+  }
+
+  return paths;
+}
+
+const detail = pathsAt(DETAIL_WEIGHT);
+const coarse = pathsAt(COARSE_WEIGHT);
+
+// A small area can simplify away entirely at the coarse level; it must still be
+// drawn and clickable, so it falls back to its detailed outline.
+for (const [code, shape] of detail) if (!coarse.has(code)) coarse.set(code, shape);
+
+const shapes = [...coarse]
+  .map(([code, shape]) => ({ code, name: shape.name, d: shape.d }))
+  .toSorted((a, b) => a.code.localeCompare(b.code));
+
+const detailPaths = Object.fromEntries([...detail].map(([code, shape]) => [code, shape.d]));
+
+const coarseFile = { viewBox: `0 0 ${WIDTH} ${HEIGHT}`, shapes };
+const outputCoarse = resolvePath(import.meta.dirname, OUTPUT_COARSE);
+const outputDetail = resolvePath(import.meta.dirname, OUTPUT_DETAIL);
+
+await writeFile(outputCoarse, JSON.stringify(coarseFile));
+await writeFile(outputDetail, JSON.stringify(detailPaths));
+
+const total = (map: Map<string, { points: number }>) =>
+  [...map.values()].reduce((sum, shape) => sum + shape.points, 0);
+const kb = (value: object) => (JSON.stringify(value).length / 1024).toFixed(0);
 
 console.log(
-  `${shapes.length} Victorian SA2 shapes, ~${points.toLocaleString()} points, ` +
-    `${(JSON.stringify(output).length / 1024).toFixed(0)} kB -> ${outputPath}`,
+  `coarse: ${shapes.length} areas, ${total(coarse).toLocaleString()} points, ${kb(coarseFile)} kB\n` +
+    `detail: ${detail.size} areas, ${total(detail).toLocaleString()} points, ${kb(detailPaths)} kB`,
 );
