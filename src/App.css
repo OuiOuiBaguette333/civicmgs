@@ -671,3 +671,87 @@ details.scenario-panel[open] .scenario-panel__summary {
   background: var(--surface-2);
   border: 1px solid var(--border);
 }
+
+/* Sensitivity ------------------------------------------------------------- */
+
+.sensitivity {
+  margin-top: var(--space-2);
+}
+
+.sensitivity__lead {
+  color: var(--text-muted);
+  margin-bottom: var(--space-3);
+}
+
+.sensitivity__row {
+  margin-bottom: var(--space-3);
+}
+
+.sensitivity__row:last-child {
+  margin-bottom: 0;
+}
+
+.sensitivity__label {
+  align-items: baseline;
+  color: var(--text-h);
+  display: flex;
+  flex-wrap: wrap;
+  font-weight: 500;
+  gap: var(--space-2);
+}
+
+/* Labelled as well as coloured: which is evidence and which is ours is the
+   point of the panel, and must not rest on hue alone. */
+.sensitivity__basis {
+  border: 1px solid currentcolor;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 400;
+  padding: 0 6px;
+  white-space: nowrap;
+}
+
+.sensitivity__basis--evidence {
+  color: var(--positive);
+}
+
+.sensitivity__basis--assumption {
+  color: var(--caution);
+}
+
+.sensitivity__track {
+  background: var(--surface-2);
+  border-radius: 3px;
+  height: 10px;
+  margin: var(--space-1) 0;
+  position: relative;
+}
+
+.sensitivity__bar {
+  background: var(--accent);
+  border-radius: 3px;
+  bottom: 0;
+  min-width: 2px;
+  opacity: 0.4;
+  position: absolute;
+  top: 0;
+}
+
+/* The central estimate, so each bar reads as movement away from the answer. */
+.sensitivity__centre {
+  background: var(--text-h);
+  bottom: -2px;
+  position: absolute;
+  top: -2px;
+  width: 1px;
+}
+
+.sensitivity__range {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.sensitivity__note {
+  color: var(--text-muted);
+  font-variant-numeric: normal;
+}

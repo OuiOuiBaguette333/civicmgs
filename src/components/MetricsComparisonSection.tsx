@@ -4,6 +4,7 @@ import { YEAR } from "@data/abs";
 import { type RegionDemographics, useRegionDemographics } from "@hooks/useRegionDemographics";
 import type { LeverChanges } from "@model/levers";
 import { hasAnyLeverChange, project, type Projection, projectSeries } from "@model/project";
+import { sensitivities } from "@model/sensitivity";
 import type { Location } from "@types";
 import {
   DEMOGRAPHICS,
@@ -93,6 +94,12 @@ function MetricsGrid({
                   horizonYears={horizonYears}
                   label={card.label}
                   series={projectSeries(metric, projection.baseline, leverChanges, horizonYears)}
+                  sensitivity={sensitivities(
+                    metric,
+                    projection.baseline,
+                    leverChanges,
+                    horizonYears,
+                  )}
                 />
               )
             }
