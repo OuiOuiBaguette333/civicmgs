@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "data:shapes": "node --max-old-space-size=2048 --experimental-strip-types scripts/buildSA2Shapes.ts",
     "data:metrics": "node --experimental-strip-types scripts/buildSA2Metrics.ts",
+    "data:electorates": "node --max-old-space-size=2048 --experimental-strip-types scripts/buildElectorates.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "fmt": "oxfmt",

@@ -755,3 +755,461 @@ details.scenario-panel[open] .scenario-panel__summary {
   color: var(--text-muted);
   font-variant-numeric: normal;
 }
+
+/* Home page --------------------------------------------------------------- */
+
+.home-page {
+  display: grid;
+  gap: var(--space-6);
+  padding: var(--space-5);
+
+  @media (width <= 640px) {
+    gap: var(--space-5);
+    padding: var(--space-4);
+  }
+}
+
+.home-page__header {
+  max-width: 68ch;
+}
+
+.home-page__eyebrow {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.home-page__header h1 {
+  font-size: 2.1rem;
+  margin: var(--space-1) 0 var(--space-3);
+
+  @media (width <= 640px) {
+    font-size: 1.6rem;
+  }
+}
+
+.home-page__intro {
+  color: var(--text);
+  font-size: var(--text-lg);
+  line-height: 1.55;
+}
+
+.home-page__open {
+  margin-top: var(--space-4);
+}
+
+.home-page__section-title {
+  margin-bottom: var(--space-2);
+}
+
+.home-page__lede,
+.home-page__footnote {
+  color: var(--text);
+  font-size: var(--text-sm);
+  max-width: 72ch;
+}
+
+.home-page__footnote {
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  margin-top: var(--space-5);
+  padding-top: var(--space-3);
+}
+
+.dashboard-page__back {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-2);
+  padding: 0;
+
+  &:hover {
+    border: none;
+    color: var(--accent);
+  }
+}
+
+/* Countdown --------------------------------------------------------------- */
+
+.countdown {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: grid;
+  gap: var(--space-5);
+  padding: var(--space-5);
+
+  @media (width >= 860px) {
+    align-items: start;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 22rem);
+    gap: var(--space-6);
+  }
+}
+
+.countdown__eyebrow {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.countdown__name {
+  font-size: var(--text-xl);
+  margin-top: var(--space-1);
+}
+
+.countdown__date {
+  color: var(--text);
+  font-size: var(--text-md);
+  margin-top: var(--space-1);
+}
+
+.countdown__figure {
+  align-items: baseline;
+  display: flex;
+  gap: var(--space-3);
+  margin: var(--space-4) 0 var(--space-3);
+}
+
+/* The one hero figure on the page: proportional digits, same sans as the rest. */
+.countdown__days {
+  color: var(--text-h);
+  font-size: 4rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.countdown__unit {
+  color: var(--text);
+  font-size: var(--text-lg);
+}
+
+.countdown__called {
+  color: var(--text-h);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  margin: var(--space-4) 0 var(--space-3);
+}
+
+.countdown__called--today {
+  color: var(--accent);
+}
+
+.countdown__body {
+  color: var(--text);
+  font-size: var(--text-sm);
+}
+
+.countdown__next {
+  background: var(--accent-bg);
+  border-radius: var(--radius-sm);
+  color: var(--text-h);
+  font-size: var(--text-sm);
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+}
+
+.countdown__source {
+  font-size: var(--text-xs);
+  margin-top: var(--space-3);
+}
+
+.countdown__timeline {
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-4);
+
+  @media (width >= 860px) {
+    border-left: 1px solid var(--border);
+    border-top: none;
+    padding: 0 0 0 var(--space-5);
+  }
+}
+
+.countdown__timeline-title {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.milestones {
+  display: grid;
+  gap: var(--space-1);
+  list-style: none;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+}
+
+.milestones__item {
+  align-items: baseline;
+  border-radius: var(--radius-sm);
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: 4.2rem minmax(0, 1fr) auto;
+  padding: var(--space-2);
+}
+
+.milestones__date {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.milestones__label {
+  color: var(--text-h);
+  font-size: var(--text-sm);
+}
+
+.milestones__detail {
+  color: var(--text-muted);
+  display: block;
+  font-size: var(--text-xs);
+  margin-top: 2px;
+}
+
+.milestones__when {
+  color: var(--text);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.milestones__item--past {
+  opacity: 0.55;
+}
+
+.milestones__item--next {
+  background: var(--accent-bg);
+}
+
+.milestones__item--next .milestones__when {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Electorate directory ---------------------------------------------------- */
+
+.directory__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.directory__field {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.directory__field:first-child {
+  flex: 1 1 18rem;
+}
+
+.directory__label {
+  color: var(--text-h);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+.directory__input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-h);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  padding: 0.5em 0.7em;
+  width: 100%;
+
+  &:hover {
+    border-color: var(--accent-border);
+  }
+}
+
+.directory__count {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  margin-top: var(--space-3);
+}
+
+.directory__status {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: var(--text-sm);
+  margin-top: var(--space-4);
+  max-width: 72ch;
+  padding: var(--space-4);
+}
+
+.directory__grid {
+  display: grid;
+  gap: var(--space-4);
+  align-items: start;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 21rem), 1fr));
+  margin-top: var(--space-2);
+}
+
+/* District card ----------------------------------------------------------- */
+
+.district {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.district__name {
+  font-size: var(--text-lg);
+}
+
+.district__meta {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  margin-top: 2px;
+}
+
+/*
+ * Labels on one row and values on the next, filled column by column, so a label
+ * that wraps to two lines cannot drop its own value out of line with the
+ * figures beside it. `display: contents` on the wrapper is what lets the pairs
+ * take part in one shared grid.
+ */
+.district__stats,
+.suburbs__figures {
+  display: grid;
+  gap: var(--space-1) var(--space-3);
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  margin: 0;
+}
+
+.figure {
+  display: contents;
+}
+
+/* Three figures over two rows: one column each. */
+.district__stats {
+  border-top: 1px solid var(--border);
+  grid-template-rows: auto auto;
+
+  /* Kept together rather than stretched apart when the card takes a full row. */
+  max-width: 32rem;
+  padding-top: var(--space-3);
+}
+
+.district__flag {
+  color: var(--text-muted);
+}
+
+.district__areas {
+  border-top: 1px solid var(--border);
+  margin-top: auto;
+  padding-top: var(--space-3);
+}
+
+.district__summary {
+  color: var(--text);
+  cursor: pointer;
+  font-size: var(--text-sm);
+
+  &:hover {
+    color: var(--accent);
+  }
+}
+
+.suburbs {
+  display: grid;
+  gap: 0 var(--space-4);
+  grid-template-columns: minmax(0, 1fr);
+  list-style: none;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+}
+
+.suburbs__item {
+  border-top: 1px solid var(--border);
+  padding: var(--space-3) 0;
+}
+
+.suburbs__name {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  padding: 0;
+  text-align: left;
+
+  &:hover {
+    border: none;
+    text-decoration: underline;
+  }
+}
+
+.suburbs__empty {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  margin-top: var(--space-1);
+}
+
+/* Four figures over four rows: two columns, wide enough for the longest label. */
+.suburbs__figures {
+  grid-template-rows: repeat(4, auto);
+  margin-top: var(--space-2);
+}
+
+.figure__label {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  line-height: 1.3;
+}
+
+.figure__value {
+  color: var(--text-h);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  margin: 0;
+}
+
+.district__stats .figure__value {
+  font-size: var(--text-md);
+}
+
+.figure__flag {
+  color: var(--text-muted);
+}
+
+/*
+ * An open district takes the whole row, so its suburbs spread across the width
+ * instead of running down one column beside a column-shaped hole.
+ */
+.district:has(.district__areas[open]) {
+  grid-column: 1 / -1;
+}
+
+.district:has(.district__areas[open]) .suburbs {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+}
+
+.district__region {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  margin-top: 2px;
+  text-transform: uppercase;
+}
