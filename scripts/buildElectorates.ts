@@ -134,6 +134,45 @@ function centroidOf(polygons: Ring[][]): Position {
   return twice === 0 ? ring[0] : [x / (3 * twice), y / (3 * twice)];
 }
 
+/*
+ * Victoria's 2020-21 redivision abolished nine districts and created nine, so a
+ * boundary file from the wrong side of it still has exactly 88 districts and
+ * still passes a count check. These are the nine created then: if none of them
+ * is present, the file predates the redivision and describes the electorates
+ * of the 2014 and 2018 elections, not the ones being contested in 2026.
+ *
+ * The ABS ASGS 2021 release is on the wrong side of this line. Its State
+ * Electoral Divisions were published in July 2021 and the redivision was
+ * gazetted that October.
+ */
+const CREATED_IN_2021_REDIVISION = [
+  "Ashwood",
+  "Berwick",
+  "Eureka",
+  "Glen Waverley",
+  "Greenvale",
+  "Kalkallo",
+  "Laverton",
+  "Pakenham",
+  "Point Cook",
+];
+
+function assertCurrentBoundaries(names: string[]) {
+  const found = new Set(names);
+  const missing = CREATED_IN_2021_REDIVISION.filter(name => !found.has(name));
+
+  if (missing.length < CREATED_IN_2021_REDIVISION.length) return;
+
+  throw new Error(
+    `These boundaries predate Victoria's 2020-21 redivision: none of ` +
+      `${CREATED_IN_2021_REDIVISION.join(", ")} is present, and every one of them ` +
+      `has been a district since the 2022 election. The count is still 88 because ` +
+      `the redivision abolished nine districts and created nine. Download a State ` +
+      `Electoral Division boundary file published after October 2021 — the ABS ` +
+      `reissues them annually — and run this again.`,
+  );
+}
+
 const sedPath = resolvePath(process.cwd(), SED_INPUT);
 const sa2Path = resolvePath(process.cwd(), SA2_INPUT);
 
@@ -167,6 +206,8 @@ for await (const item of streamFeatures<Feature>(sedPath)) {
 }
 
 if (districts.length === 0) throw new Error(`No Victorian districts found in ${sedPath}.`);
+
+assertCurrentBoundaries(districts.map(district => district.name));
 
 let placed = 0;
 let byNearest = 0;
