@@ -29,13 +29,21 @@ const SA2_INPUT = process.argv[3] ?? "SA2.geojson";
 const OUTPUT = "../src/data/abs/SED_VIC.json";
 const VICTORIA_PREFIX = "2";
 
-const SED_CODE_KEYS = ["SED_CODE_2021", "sed_code_2021", "SED_CODE21"];
-const SED_NAME_KEYS = ["SED_NAME_2021", "sed_name_2021", "SED_NAME21"];
+const SED_CODE_KEYS = ["sed_code_2024", "SED_CODE_2024", "SED_CODE_2021", "sed_code_2021", "SED_CODE21"];
+const SED_NAME_KEYS = ["sed_name_2024", "SED_NAME_2024", "SED_NAME_2021", "sed_name_2021", "SED_NAME21"];
 const SA2_CODE_KEYS = ["SA2_CODE_2021", "sa2_code_2021", "SA2_CODE21", "SA2_MAIN21"];
 
 // The ABS names every Victorian district for the Legislative Council region it
 // sits in: "Albert Park (Southern Metropolitan)". Kept as two fields, so the
 // card can lead with the district and the region can group 88 of them.
+/*
+ * The ABS gives every state two non-places: people with no usual address on
+ * census night, and those offshore or in transit. Neither has an electorate.
+ * They are recognisable because a real district carries its Legislative
+ * Council region in brackets and these carry the state abbreviation.
+ */
+const NON_DISTRICTS = ["No usual address", "Migratory - Offshore - Shipping"];
+
 const NAME_WITH_REGION = /^(?<district>.+?)\s*\((?<region>[^()]+)\)$/u;
 
 function splitName(full: string) {
@@ -191,12 +199,16 @@ for await (const item of streamFeatures<Feature>(sedPath)) {
 
   if (!code?.startsWith(VICTORIA_PREFIX) || !item.geometry) continue;
 
+  const named = splitName(pick(item.properties, SED_NAME_KEYS) ?? code);
+
+  if (NON_DISTRICTS.includes(named.name)) continue;
+
   const polygons = polygonsOf(item.geometry).filter(rings => rings[0]?.length >= 4);
 
   if (polygons.length === 0) continue;
 
   districts.push({
-    ...splitName(pick(item.properties, SED_NAME_KEYS) ?? code),
+    ...named,
     code,
     polygons,
     bounds: boundsOf(polygons),
@@ -208,6 +220,33 @@ for await (const item of streamFeatures<Feature>(sedPath)) {
 if (districts.length === 0) throw new Error(`No Victorian districts found in ${sedPath}.`);
 
 assertCurrentBoundaries(districts.map(district => district.name));
+
+/*
+ * Victoria's Legislative Council has eight regions and each is built from
+ * exactly eleven Assembly districts. This does not catch a wrong vintage — the
+ * pre-redivision map was 8 x 11 too, which is what assertCurrentBoundaries is
+ * for — but it does catch a file that has lost its region names, mixes two
+ * vintages, or has quietly dropped a district.
+ */
+const REGIONS = 8;
+const DISTRICTS_PER_REGION = 11;
+
+const perRegion = new Map<string, number>();
+
+for (const district of districts) {
+  const region = district.region ?? "(none)";
+
+  perRegion.set(region, (perRegion.get(region) ?? 0) + 1);
+}
+
+const wrong = [...perRegion].filter(([, count]) => count !== DISTRICTS_PER_REGION);
+
+if (perRegion.size !== REGIONS || wrong.length > 0) {
+  throw new Error(
+    `Expected ${REGIONS} Legislative Council regions of ${DISTRICTS_PER_REGION} districts each, got ` +
+      `${perRegion.size} regions: ${[...perRegion].map(([r, c]) => `${r} (${c})`).join(", ")}.`,
+  );
+}
 
 let placed = 0;
 let byNearest = 0;
