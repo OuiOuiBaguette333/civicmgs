@@ -1,23 +1,20 @@
-import { melbourneDay } from "@data/elections";
 import { useEffect, useState } from "react";
 
-const CHECK_INTERVAL_MS = 60_000;
+const TICK_MS = 60_000;
 
 /**
- * The current instant, replaced only when the calendar day in Melbourne turns
- * over. A countdown measured in whole days has nothing new to say until then,
- * so polling every minute and keeping the old Date otherwise leaves a tab open
- * overnight correct without re-rendering it 1,440 times a day.
+ * The current instant, refreshed once a minute.
+ *
+ * The countdown counts calendar days, but the milestones around it are exact
+ * instants — enrolment closes at 8 pm, not at midnight — so a clock that only
+ * moved at midnight would keep saying "closes today" for hours after it had.
+ * A re-render a minute of a small tree costs nothing worth saving.
  */
 export function useToday() {
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setNow(current =>
-        melbourneDay(new Date()) === melbourneDay(current) ? current : new Date(),
-      );
-    }, CHECK_INTERVAL_MS);
+    const timer = setInterval(() => setNow(new Date()), TICK_MS);
 
     return () => clearInterval(timer);
   }, []);

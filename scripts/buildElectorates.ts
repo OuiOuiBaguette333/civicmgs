@@ -14,14 +14,20 @@
 import { writeFile } from "node:fs/promises";
 import { resolve as resolvePath } from "node:path";
 
+import {
+  boundsOf,
+  centroidOf,
+  type Geometry,
+  inPolygons,
+  polygonsOf,
+  type Position,
+  type Ring,
+} from "./geometry.ts";
 import { streamFeatures } from "./streamFeatures.ts";
-
-type Position = [number, number];
-type Ring = Position[];
 
 interface Feature {
   properties?: Record<string, unknown>;
-  geometry: { type: string; coordinates: unknown } | null;
+  geometry: Geometry | null;
 }
 
 const SED_INPUT = process.argv[2] ?? "SED.geojson";
@@ -29,21 +35,33 @@ const SA2_INPUT = process.argv[3] ?? "SA2.geojson";
 const OUTPUT = "../src/data/abs/SED_VIC.json";
 const VICTORIA_PREFIX = "2";
 
-const SED_CODE_KEYS = ["sed_code_2024", "SED_CODE_2024", "SED_CODE_2021", "sed_code_2021", "SED_CODE21"];
-const SED_NAME_KEYS = ["sed_name_2024", "SED_NAME_2024", "SED_NAME_2021", "sed_name_2021", "SED_NAME21"];
+const SED_CODE_KEYS = [
+  "sed_code_2024",
+  "SED_CODE_2024",
+  "SED_CODE_2021",
+  "sed_code_2021",
+  "SED_CODE21",
+];
+const SED_NAME_KEYS = [
+  "sed_name_2024",
+  "SED_NAME_2024",
+  "SED_NAME_2021",
+  "sed_name_2021",
+  "SED_NAME21",
+];
 const SA2_CODE_KEYS = ["SA2_CODE_2021", "sa2_code_2021", "SA2_CODE21", "SA2_MAIN21"];
 
-// The ABS names every Victorian district for the Legislative Council region it
-// sits in: "Albert Park (Southern Metropolitan)". Kept as two fields, so the
-// card can lead with the district and the region can group 88 of them.
 /*
  * The ABS gives every state two non-places: people with no usual address on
  * census night, and those offshore or in transit. Neither has an electorate.
  * They are recognisable because a real district carries its Legislative
  * Council region in brackets and these carry the state abbreviation.
  */
-const NON_DISTRICTS = ["No usual address", "Migratory - Offshore - Shipping"];
+const NON_DISTRICTS = new Set(["No usual address", "Migratory - Offshore - Shipping"]);
 
+// The ABS names every Victorian district for the Legislative Council region it
+// sits in: "Albert Park (Southern Metropolitan)". Kept as two fields, so the
+// card can lead with the district and the region can group 88 of them.
 const NAME_WITH_REGION = /^(?<district>.+?)\s*\((?<region>[^()]+)\)$/u;
 
 function splitName(full: string) {
@@ -61,86 +79,6 @@ const pick = (properties: Record<string, unknown> | undefined, keys: string[]) =
     if (typeof value === "string" && value !== "") return value;
   }
 };
-
-/** Polygons kept whole, so the first ring stays the outline and the rest holes. */
-function polygonsOf(geometry: Feature["geometry"]): Ring[][] {
-  if (!geometry) return [];
-  if (geometry.type === "Polygon") return [geometry.coordinates as Ring[]];
-  if (geometry.type === "MultiPolygon") return geometry.coordinates as Ring[][];
-
-  return [];
-}
-
-function boundsOf(polygons: Ring[][]) {
-  let minX = Infinity;
-  let minY = Infinity;
-  let maxX = -Infinity;
-  let maxY = -Infinity;
-
-  for (const rings of polygons) {
-    for (const [x, y] of rings[0]) {
-      minX = Math.min(minX, x);
-      maxX = Math.max(maxX, x);
-      minY = Math.min(minY, y);
-      maxY = Math.max(maxY, y);
-    }
-  }
-
-  return { minX, minY, maxX, maxY };
-}
-
-/** Ray casting: an odd number of crossings to the right means inside. */
-function inRing([x, y]: Position, ring: Ring) {
-  let inside = false;
-
-  for (let i = 0, j = ring.length - 1; i < ring.length; j = i, i += 1) {
-    const [xi, yi] = ring[i];
-    const [xj, yj] = ring[j];
-
-    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
-  }
-
-  return inside;
-}
-
-const inPolygons = (point: Position, polygons: Ring[][]) =>
-  polygons.some(
-    rings => inRing(point, rings[0]) && !rings.slice(1).some(hole => inRing(point, hole)),
-  );
-
-/** Twice the signed area of a ring, unsigned — enough to pick the largest. */
-function ringArea(ring: Ring) {
-  let total = 0;
-
-  for (const [index, [x, y]] of ring.entries()) {
-    const [nx, ny] = ring[(index + 1) % ring.length];
-    total += x * ny - nx * y;
-  }
-
-  return Math.abs(total) / 2;
-}
-
-/** Area-weighted centroid of the largest ring — a point inside, near the middle. */
-function centroidOf(polygons: Ring[][]): Position {
-  const ring = polygons
-    .map(rings => rings[0])
-    .reduce((a, b) => (ringArea(a) > ringArea(b) ? a : b));
-
-  let twice = 0;
-  let x = 0;
-  let y = 0;
-
-  for (const [index, [px, py]] of ring.entries()) {
-    const [qx, qy] = ring[(index + 1) % ring.length];
-    const cross = px * qy - qx * py;
-
-    twice += cross;
-    x += (px + qx) * cross;
-    y += (py + qy) * cross;
-  }
-
-  return twice === 0 ? ring[0] : [x / (3 * twice), y / (3 * twice)];
-}
 
 /*
  * Victoria's 2020-21 redivision abolished nine districts and created nine, so a
@@ -201,7 +139,7 @@ for await (const item of streamFeatures<Feature>(sedPath)) {
 
   const named = splitName(pick(item.properties, SED_NAME_KEYS) ?? code);
 
-  if (NON_DISTRICTS.includes(named.name)) continue;
+  if (NON_DISTRICTS.has(named.name)) continue;
 
   const polygons = polygonsOf(item.geometry).filter(rings => rings[0]?.length >= 4);
 

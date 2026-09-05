@@ -21,6 +21,8 @@ export interface Election {
   body: string;
   /** When polls open on election day. */
   at: string;
+  /** When they close. */
+  pollsClose: string;
   source: { title: string; url: string };
   milestones: Milestone[];
 }
@@ -31,6 +33,7 @@ export const ELECTIONS: Election[] = [
     name: "Victorian state election",
     body: "88 Legislative Assembly districts and 8 Legislative Council regions",
     at: "2026-11-28T08:00:00+11:00",
+    pollsClose: "2026-11-28T18:00:00+11:00",
     source: {
       title: "Victorian Electoral Commission — 2026 state election",
       url: "https://www.vec.vic.gov.au/voting/2026-state-election",

@@ -21,7 +21,16 @@ export function CopyLinkButton() {
   }, [status]);
 
   const copy = () => {
-    globalThis.navigator.clipboard.writeText(globalThis.location.href).then(
+    // The clipboard API only exists in a secure context, so over plain http
+    // from another device on the network it is simply absent.
+    const clipboard = globalThis.navigator.clipboard;
+
+    if (!clipboard) {
+      setStatus("failed");
+      return;
+    }
+
+    clipboard.writeText(globalThis.location.href).then(
       () => setStatus("copied"),
       () => setStatus("failed"),
     );

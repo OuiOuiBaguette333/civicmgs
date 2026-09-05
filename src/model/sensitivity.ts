@@ -7,7 +7,13 @@ import type { Demographic } from "@utils/demographics";
 export const TIMING_VARIATION = 0.25;
 
 /** Whether a parameter's range comes from research or from this project. */
-export type SensitivityBasis = "evidence" | "assumption";
+/**
+ * Where a row's range comes from. "mixed" is the effect-size row: the central
+ * and high ends are the study's own estimates, but every low end in the
+ * effects table is a conservative floor CivicLens chose, not a reported one,
+ * and calling the whole range "from the study" would overstate it.
+ */
+export type SensitivityBasis = "evidence" | "assumption" | "mixed";
 
 export interface Sensitivity {
   key: string;
@@ -67,8 +73,8 @@ export function sensitivities(
       {
         key: "magnitude",
         label: "Effect size",
-        basis: "evidence",
-        note: "the study's own low and high estimates",
+        basis: "mixed",
+        note: "the study's central and high estimates, and a conservative floor of our own below",
         low: { ...effect, magnitude: { ...magnitude, central: magnitude.low } },
         high: { ...effect, magnitude: { ...magnitude, central: magnitude.high } },
       },

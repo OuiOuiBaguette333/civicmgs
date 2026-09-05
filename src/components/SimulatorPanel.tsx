@@ -28,9 +28,14 @@ export function SimulatorPanel<T extends Record<string, number>>({
 
   return (
     <details className="scenario-panel">
+      {/* The heading sits inside the summary's text, not as the summary itself:
+          a heading that is also a button is announced inconsistently, and a
+          summary stripped of list-item display loses its disclosure marker. */}
       <summary className="scenario-panel__summary">
-        <h2>Direct adjustment</h2>
-        {isModified && <span className="scenario-panel__flag">active</span>}
+        <span className="scenario-panel__summary-text">
+          <h2>Direct adjustment</h2>
+          {isModified && <span className="scenario-panel__flag">active</span>}
+        </span>
       </summary>
 
       <div className="scenario-panel__header">

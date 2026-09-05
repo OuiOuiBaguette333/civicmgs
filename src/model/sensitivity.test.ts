@@ -61,11 +61,13 @@ describe("sensitivities", () => {
     expect(size.max).toBeCloseTo(projected.high, 10);
   });
 
-  it("labels the study's range as evidence and the timings as assumptions", () => {
+  // The effect-size range is not wholly the study's: its low end is a floor
+  // CivicLens chose, so it must not be labelled as evidence alone.
+  it("labels the effect size as mixed and the timings as assumptions", () => {
     const byLabel = Object.fromEntries(rowsAt(20).map(row => [row.label, row.basis]));
 
     expect(byLabel).toStrictEqual({
-      "Effect size": "evidence",
+      "Effect size": "mixed",
       Lag: "assumption",
       "Phase-in": "assumption",
     });

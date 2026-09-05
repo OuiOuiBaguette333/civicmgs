@@ -117,7 +117,7 @@ function ChartMarks({
       />
 
       <path className="chart__band" d={bandPath(points, scales)} />
-      <path className="chart__line" d={linePath(points, scales)} />
+      <path className="chart__line" d={linePath(points, scales)} pathLength={1} />
 
       {last && (
         <circle

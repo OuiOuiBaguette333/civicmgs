@@ -6,10 +6,11 @@
   --border: #e3e3dd;
   --border-strong: #cfcfc7;
 
-  /* Ink. Muted still clears 4.5:1 on the surface, since it labels axes. */
+  /* Ink. Muted clears 4.5:1 on the page plane as well as the surface, since
+     footnotes and counts sit directly on the page. */
   --text: #56554f;
   --text-h: #131311;
-  --text-muted: #74736d;
+  --text-muted: #6b6a64;
 
   --accent: #2a5cf0;
   --accent-bg: rgb(42 92 240 / 8%);
@@ -48,6 +49,14 @@
 
   --radius: 12px;
   --radius-sm: 8px;
+
+  /* Motion. Three durations and two curves, used everywhere, so the page moves
+     as one thing. Reduced-motion collapses them all to nothing below. */
+  --dur-1: 130ms;
+  --dur-2: 240ms;
+  --dur-3: 480ms;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 0.7, 0.2);
 
   font: 16px/1.5 var(--sans);
   color-scheme: light dark;
@@ -99,6 +108,76 @@
   box-sizing: border-box;
 }
 
+/*
+ * One switch for every animation and transition on the page. Anything that
+ * moves reads its duration from a token, so a reader who has asked for less
+ * motion gets none of it — not a faster version.
+ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: 0ms;
+    --dur-2: 0ms;
+    --dur-3: 0ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* Moving between the front page and the dashboard crossfades where the browser
+   can do it; elsewhere the swap is instant and nothing else differs. */
+::view-transition-old(root) {
+  animation: fade-out var(--dur-2) var(--ease-in) both;
+}
+
+::view-transition-new(root) {
+  animation: rise var(--dur-3) var(--ease) both;
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* The entrance used for anything arriving on the page: a short lift and fade. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* A bar or line growing from nothing to its length. */
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
 body {
   margin: 0;
 }
@@ -141,9 +220,23 @@ p {
 a {
   color: var(--accent);
   text-decoration: none;
+  transition: color var(--dur-1) var(--ease);
 
   &:hover {
     text-decoration: underline;
+  }
+}
+
+/* A link in running text is only findable by its hue otherwise, and in dark
+   mode the accent and the body text are the same lightness. */
+p a {
+  text-decoration: underline;
+  text-decoration-color: var(--accent-border);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+
+  &:hover {
+    text-decoration-color: currentcolor;
   }
 }
 
@@ -162,10 +255,83 @@ select {
   font-family: inherit;
   font-size: var(--text-sm);
   padding: 0.45em 0.85em;
+  transition:
+    border-color var(--dur-1) var(--ease),
+    background-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease),
+    transform var(--dur-1) var(--ease);
 
   &:hover {
     border-color: var(--accent-border);
   }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+}
+
+button:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+/* Every disclosure on the page shares one chevron, which turns as it opens.
+   The native marker is replaced rather than removed, so the summary keeps its
+   list-item display and its role. */
+summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+summary::-webkit-details-marker {
+  display: none;
+}
+
+summary::before {
+  border-color: currentcolor;
+  border-style: solid;
+  border-width: 0 1.5px 1.5px 0;
+  content: "";
+  display: inline-block;
+  height: 0.4em;
+  margin: 0 0.6em 0.1em 0.2em;
+  transform: rotate(-45deg);
+  transition: transform var(--dur-2) var(--ease);
+  width: 0.4em;
+}
+
+details[open] > summary::before {
+  transform: rotate(45deg);
+}
+
+/* Where the browser can animate a disclosure's height, it does. */
+details {
+  interpolate-size: allow-keywords;
+}
+
+details::details-content {
+  block-size: 0;
+  overflow: clip;
+  transition:
+    block-size var(--dur-2) var(--ease),
+    content-visibility var(--dur-2) allow-discrete;
+}
+
+details[open]::details-content {
+  block-size: auto;
+}
+
+/* A placeholder that reads as "something is on its way" rather than a gap. */
+.skeleton {
+  animation: shimmer 1.4s linear infinite;
+  background: linear-gradient(
+    90deg,
+    var(--surface-2) 0%,
+    var(--surface) 50%,
+    var(--surface-2) 100%
+  );
+  background-size: 200% 100%;
+  border-radius: var(--radius-sm);
 }
 
 input[type="range"] {

@@ -1,4 +1,11 @@
-import { daysUntil, ELECTIONS, nextMilestone, phaseOf, upcomingElections } from "@data/elections";
+import {
+  daysUntil,
+  ELECTIONS,
+  nextActionableMilestone,
+  nextMilestone,
+  phaseOf,
+  upcomingElections,
+} from "@data/elections";
 import { describe, expect, it } from "vitest";
 
 const vic = ELECTIONS[0];
@@ -19,12 +26,18 @@ describe("daysUntil", () => {
     expect(daysUntil(vic.at, at("2026-11-29T09:00:00+11:00"))).toBe(-1);
   });
 
-  /** A reader in London should be told the same number of days as one in Kew. */
-  it("gives the same answer whatever timezone the reader is in", () => {
-    const melbourneMorning = at("2026-11-20T09:00:00+11:00");
-    const sameInstantInLondon = at("2026-11-19T22:00:00+00:00");
+  /**
+   * A reader in London should be told the same number of days as one in Kew.
+   * 22:00 UTC on the 19th is already the 20th in Melbourne, so an
+   * implementation counting UTC days would say 9 here; only one counting
+   * Melbourne days says 8. (The test process runs in UTC, pinned in the vitest
+   * config, so that the two really do differ.)
+   */
+  it("counts the day it is in Melbourne, not the day it is in UTC", () => {
+    const lateEveningUtc = at("2026-11-19T22:00:00Z");
 
-    expect(daysUntil(vic.at, melbourneMorning)).toBe(daysUntil(vic.at, sameInstantInLondon));
+    expect(daysUntil(vic.at, lateEveningUtc)).toBe(8);
+    expect(daysUntil(vic.at, at("2026-11-19T12:00:00Z"))).toBe(9);
   });
 });
 
@@ -57,5 +70,34 @@ describe("upcomingElections", () => {
     // A guessed federal or council date would be worse than none.
     expect(ELECTIONS.every(election => Number.isFinite(Date.parse(election.at)))).toBe(true);
     expect(ELECTIONS.every(election => election.source.url.startsWith("https://"))).toBe(true);
+  });
+});
+
+describe("nextActionableMilestone", () => {
+  it("skips a milestone nobody can act on in favour of one they can", () => {
+    // Writs are issued at 6 pm on 3 November; enrolment closes at 8 pm the same
+    // day. Chronologically the writs are next, but the reader needs the deadline.
+    const before = at("2026-11-01T09:00:00+11:00");
+
+    expect(nextMilestone(vic, before)?.label).toBe("Writs issued");
+    expect(nextActionableMilestone(vic, before)?.label).toBe("Enrolment closes");
+  });
+
+  it("moves on the instant a deadline passes, not at midnight", () => {
+    const justBefore = at("2026-11-03T19:59:00+11:00");
+    const justAfter = at("2026-11-03T20:01:00+11:00");
+
+    expect(nextActionableMilestone(vic, justBefore)?.label).toBe("Enrolment closes");
+    expect(nextActionableMilestone(vic, justAfter)?.label).toBe("Early voting opens");
+  });
+
+  it("falls back to whatever is next once nothing actionable remains", () => {
+    const afterPostals = at("2026-11-26T09:00:00+11:00");
+
+    expect(nextActionableMilestone(vic, afterPostals)?.label).toBe("Early voting closes");
+  });
+
+  it("has nothing to say once the election is over", () => {
+    expect(nextActionableMilestone(vic, at("2026-11-29T09:00:00+11:00"))).toBeUndefined();
   });
 });

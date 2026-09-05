@@ -7,6 +7,26 @@ const DRAG_THRESHOLD = 4;
 const gapBetween = ([a, b]: Point[]) => Math.hypot(a.x - b.x, a.y - b.y);
 
 /**
+ * Until a press becomes a drag nothing is captured, so a pointer that leaves
+ * the map and is released outside it would never report the release to the
+ * svg. A pen leaves a ghost behind that way, after which every one-finger drag
+ * is read as a pinch. The window hears the release instead, once, for exactly
+ * this pointer.
+ */
+function onReleaseAnywhere(pointerId: number, callback: () => void) {
+  const release = (event: globalThis.PointerEvent) => {
+    if (event.pointerId !== pointerId) return;
+
+    callback();
+    globalThis.removeEventListener("pointerup", release);
+    globalThis.removeEventListener("pointercancel", release);
+  };
+
+  globalThis.addEventListener("pointerup", release);
+  globalThis.addEventListener("pointercancel", release);
+}
+
+/**
  * Drag to pan, two fingers to pinch. Pointer events rather than mouse and touch
  * separately, so a trackpad, a mouse and a phone all take the same path.
  */
@@ -15,10 +35,19 @@ export function useMapGestures(base: Viewport, setView: Dispatch<SetStateAction<
   const dragged = useRef(false);
   const [panning, setPanning] = useState(false);
 
+  const forget = (pointerId: number) => {
+    pointers.current.delete(pointerId);
+
+    if (pointers.current.size === 0) setPanning(false);
+  };
+
   const onPointerDown = (event: PointerEvent<SVGSVGElement>) => {
-    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    const { pointerId } = event;
+
+    pointers.current.set(pointerId, { x: event.clientX, y: event.clientY });
     dragged.current = false;
     setPanning(true);
+    onReleaseAnywhere(pointerId, () => forget(pointerId));
   };
 
   /**
@@ -66,11 +95,7 @@ export function useMapGestures(base: Viewport, setView: Dispatch<SetStateAction<
     if (dragged.current) setView(current => panByPixels(current, base, box, dx, dy));
   };
 
-  const onPointerUp = (event: PointerEvent<SVGSVGElement>) => {
-    pointers.current.delete(event.pointerId);
-
-    if (pointers.current.size === 0) setPanning(false);
-  };
+  const onPointerUp = (event: PointerEvent<SVGSVGElement>) => forget(event.pointerId);
 
   return {
     panning,

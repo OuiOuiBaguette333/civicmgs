@@ -52,15 +52,23 @@ export function createDelta(
   baseline: number,
   { format, direction }: DeltaOptions,
 ): Delta {
+  const difference = value - baseline;
+  const size = formatValue(Math.abs(difference), format, true);
+
   // Compared as displayed, so "same" can never contradict two identical-looking
-  // numbers on screen — which an exact float comparison would let it do.
-  if (formatValue(value, format) === formatValue(baseline, format)) {
+  // numbers on screen — which an exact float comparison would let it do. The
+  // difference itself is checked too: two values that straddle a rounding
+  // boundary print differently but their gap can still round to nothing, and
+  // "0.0 pp above" is not a sentence anyone should read.
+  if (
+    formatValue(value, format) === formatValue(baseline, format) ||
+    size === formatValue(0, format, true)
+  ) {
     return { label: "Same as Victoria", tone: "neutral" };
   }
 
-  const difference = value - baseline;
   const isAbove = difference > 0;
-  const label = `${formatValue(Math.abs(difference), format, true)} ${isAbove ? "above" : "below"} Victoria`;
+  const label = `${size} ${isAbove ? "above" : "below"} Victoria`;
 
   if (direction === "neutral") return { label, tone: "neutral" };
 

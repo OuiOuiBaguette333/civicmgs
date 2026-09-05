@@ -3,9 +3,14 @@ import { useDetailShapes } from "@hooks/useDetailShapes";
 import { useMapViewport } from "@hooks/useMapViewport";
 import type { Location } from "@types";
 import { BIN_COUNT, binOf, quantileBreaks } from "@utils/bins";
-import { DEMOGRAPHICS, DEMOGRAPHICS_META, type Demographic } from "@utils/demographics";
+import {
+  DEMOGRAPHICS,
+  DEMOGRAPHICS_META,
+  type Demographic,
+  type DemographicFormat,
+} from "@utils/demographics";
 import formatValue from "@utils/format";
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 
 /** Zoom at which the coarse outlines start to show their corners. */
 const DETAIL_ZOOM = 3;
@@ -17,6 +22,19 @@ interface ChoroplethMapProps {
   onSelect: (location: Location) => void;
 }
 
+/**
+ * Every class gets both of its edges, so a swatch labelled "60.7%" cannot be
+ * misread as an exact value: the lowest is "under", the highest "and over".
+ */
+function rangeLabel(bin: number, breaks: number[], format: DemographicFormat) {
+  const show = (value: number) => formatValue(value, format);
+
+  if (bin === 0) return `under ${show(breaks[0])}`;
+  if (bin === breaks.length) return `${show(breaks[bin - 1])} and over`;
+
+  return `${show(breaks[bin - 1])} to ${show(breaks[bin])}`;
+}
+
 function Legend({ breaks, metric }: { breaks: number[]; metric: Demographic }) {
   const { format } = DEMOGRAPHICS_META[metric];
 
@@ -25,9 +43,7 @@ function Legend({ breaks, metric }: { breaks: number[]; metric: Demographic }) {
       {Array.from({ length: BIN_COUNT }, (_, bin) => (
         <span className="choropleth__key" key={bin}>
           <span className={`choropleth__swatch choropleth__swatch--${bin}`} aria-hidden="true" />
-          {bin === 0
-            ? `under ${formatValue(breaks[0], format)}`
-            : formatValue(breaks[bin - 1], format)}
+          {rangeLabel(bin, breaks, format)}
         </span>
       ))}
 
@@ -39,11 +55,49 @@ function Legend({ breaks, metric }: { breaks: number[]; metric: Demographic }) {
   );
 }
 
-function MapStatus({ children }: { children: ReactNode }) {
+interface ReadoutProps {
+  hovered: AreaShape | null;
+  selected: AreaShape | undefined;
+  describe: (shape: AreaShape) => string;
+}
+
+/**
+ * Hovering reads out silently; only a change of selection is announced, or a
+ * pointer crossing the state would trigger five hundred announcements.
+ */
+function Readout({ hovered, selected, describe }: ReadoutProps) {
+  const shown = hovered ?? selected;
+
+  return (
+    <>
+      <p className="choropleth__readout">
+        {shown ? describe(shown) : "Hover an area to read it, or click to select it."}
+      </p>
+
+      <p className="visually-hidden" role="status">
+        {selected ? `Selected ${describe(selected)}` : ""}
+      </p>
+    </>
+  );
+}
+
+function MapStatus({ state, retry }: { state: "loading" | "failed"; retry: () => void }) {
   return (
     <section className="choropleth">
       <p className="metrics-section__status" role="status">
-        {children}
+        {state === "loading" ? (
+          <>
+            <span className="visually-hidden">Loading the map…</span>
+            <span className="skeleton choropleth__skeleton" aria-hidden="true" />
+          </>
+        ) : (
+          <>
+            The map could not be loaded.{" "}
+            <button type="button" onClick={retry}>
+              Try again
+            </button>
+          </>
+        )}
       </p>
     </section>
   );
@@ -84,7 +138,7 @@ function MapControls({ viewport }: { viewport: ReturnType<typeof useMapViewport>
       <button
         type="button"
         onClick={viewport.reset}
-        aria-label="Show the whole state"
+        aria-label="Reset zoom to show the whole state"
         disabled={viewport.zoom <= 1.001}
       >
         Reset
@@ -147,20 +201,24 @@ export function ChoroplethMap({
   selectedCode,
   onSelect,
 }: ChoroplethMapProps) {
-  const state = useChoroplethData();
+  const { state, retry } = useChoroplethData();
   const [hovered, setHovered] = useState<AreaShape | null>(null);
   const viewport = useMapViewport(state.status === "ready" ? state.data.viewBox : "0 0 800 560");
   const detail = useDetailShapes(viewport.zoom > DETAIL_ZOOM);
 
-  if (state.status === "loading") return <MapStatus>Loading the map…</MapStatus>;
+  if (state.status !== "ready") return <MapStatus state={state.status} retry={retry} />;
 
   const { shapes, values } = state.data;
   const { format, label } = DEMOGRAPHICS_META[metric];
   const valueOf = (code: string) => values[code]?.[metric];
   const measured = shapes.map(shape => valueOf(shape.code)).filter(value => value !== undefined);
   const breaks = quantileBreaks(measured);
-  const readout = hovered ?? shapes.find(shape => shape.code === selectedCode);
-  const readoutValue = readout && valueOf(readout.code);
+  const selected = shapes.find(shape => shape.code === selectedCode);
+  const describe = (shape: AreaShape) => {
+    const value = valueOf(shape.code);
+
+    return `${shape.name} — ${value === undefined ? "not available" : formatValue(value, format)}`;
+  };
 
   return (
     <section className="choropleth">
@@ -199,11 +257,7 @@ export function ChoroplethMap({
             <MapControls viewport={viewport} />
           </div>
 
-          <p className="choropleth__readout" role="status">
-            {readout
-              ? `${readout.name} — ${readoutValue === undefined ? "not available" : formatValue(readoutValue, format)}`
-              : "Hover an area to read it, or click to select it."}
-          </p>
+          <Readout hovered={hovered} selected={selected} describe={describe} />
 
           <Legend breaks={breaks} metric={metric} />
         </>

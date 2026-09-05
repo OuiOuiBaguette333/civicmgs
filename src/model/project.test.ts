@@ -124,7 +124,7 @@ describe("projectOutcome", () => {
   });
 });
 
-describe("projectOutcome, at the edges", () => {
+describe("projectOutcome, combining levers", () => {
   it("adds the levers rather than compounding them", () => {
     const result = projectOutcome(
       "year12Completion",
@@ -138,6 +138,30 @@ describe("projectOutcome, at the edges", () => {
     expect(result.projected.central).toBeCloseTo(60 + 10 + 1, 10);
   });
 
+  // Two percentage effects on the same figure. Compounded they would give
+  // 1000 x 1.05 x 1.10 = 1155; first-order and additive they give 1150, and
+  // that is the documented behaviour. Absolute effects cannot tell the two
+  // apart, so this is the case that actually distinguishes them.
+  it("adds relative effects to the same baseline rather than chaining them", () => {
+    const second: Effect = {
+      ...PERCENT_OF_VALUE,
+      lever: "employmentServices",
+      magnitude: { low: 10, central: 10, high: 10 },
+    };
+    const result = projectOutcome(
+      "medianEquivalisedHouseholdIncome",
+      1000,
+      changes({ schoolFunding: 10, employmentServices: 10 }),
+      30,
+      [PERCENT_OF_VALUE, second],
+    );
+
+    expect(result.projected.central).toBeCloseTo(1000 + 50 + 100, 10);
+    expect(result.projected.central).not.toBeCloseTo(1155, 10);
+  });
+});
+
+describe("projectOutcome, at the edges", () => {
   it("holds a percentage inside 0 to 100 however hard the lever is pushed", () => {
     const result = projectOutcome("year12Completion", 95, changes({ schoolFunding: 50 }), 50, [
       POINTS,
@@ -147,16 +171,30 @@ describe("projectOutcome, at the edges", () => {
     expect(result.projected.central).toBeLessThanOrEqual(100);
   });
 
+  // A cut deep enough to take the figure below zero on paper: -50 on a lever
+  // whose high estimate is 30% per ten points is -150%, which the clamp must
+  // hold at zero. With a gentler effect the clamp is never reached and the test
+  // would pass with no clamp at all.
   it("never lets a metric go negative", () => {
+    const severe: Effect = { ...PERCENT_OF_VALUE, magnitude: { low: 1, central: 5, high: 30 } };
     const result = projectOutcome(
       "medianEquivalisedHouseholdIncome",
       1000,
       changes({ schoolFunding: -50 }),
       50,
-      [PERCENT_OF_VALUE],
+      [severe],
     );
 
-    expect(result.projected.low).toBeGreaterThanOrEqual(0);
+    expect(result.projected.low).toBe(0);
+    expect(result.pinned).toBe(true);
+  });
+
+  it("does not report a range as pinned when it sits comfortably inside the scale", () => {
+    const result = projectOutcome("year12Completion", 60, changes({ schoolFunding: 10 }), 30, [
+      POINTS,
+    ]);
+
+    expect(result.pinned).toBe(false);
   });
 
   it("reports a direction-only link without letting it move the number", () => {

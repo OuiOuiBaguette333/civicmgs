@@ -130,8 +130,15 @@ async function fetchRegion(regionType: string, regionCode: string, signal?: Abor
   }
 
   // The API answers an empty result set with 404, which is a legitimate outcome
-  // for an area whose every measure is suppressed rather than a failure.
+  // for an area whose every measure is suppressed rather than a failure. It is
+  // never legitimate for the state itself — Victoria always has figures — so
+  // there it is an outage or a changed URL, and caching it as "nothing" would
+  // strip the state comparison from every suburb for the rest of the session.
   if (response.status === 404) {
+    if (regionType === REGION_TYPES.state) {
+      throw new AbsApiError("The ABS data API has no figures for Victoria at this address.");
+    }
+
     cache.set(cacheKey, {});
     return {};
   }

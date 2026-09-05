@@ -1,3 +1,4 @@
+import { useGlide } from "@hooks/useGlide";
 import { useMapGestures } from "@hooks/useMapGestures";
 import {
   formatViewBox,
@@ -37,6 +38,7 @@ function keyboardHandler(
   base: Viewport,
   setView: Dispatch<SetStateAction<Viewport>>,
   zoomBy: (factor: number) => void,
+  reset: () => void,
 ) {
   return (event: KeyboardEvent<SVGSVGElement>) => {
     const pan = PANS[event.key];
@@ -51,7 +53,7 @@ function keyboardHandler(
     } else if (event.key === "-" || event.key === "_") {
       zoomBy(1 / BUTTON_STEP);
     } else if (event.key === "0") {
-      setView(base);
+      reset();
     }
   };
 }
@@ -60,6 +62,7 @@ export function useMapViewport(baseViewBox: string) {
   const base = useMemo(() => parseViewBox(baseViewBox), [baseViewBox]);
   const [view, setView] = useState<Viewport>(base);
   const gestures = useMapGestures(base, setView);
+  const { glide, cancel } = useGlide(base, setView);
   const detach = useRef<(() => void) | null>(null);
 
   useEffect(() => setView(base), [base]);
@@ -82,6 +85,7 @@ export function useMapViewport(baseViewBox: string) {
 
       const onWheel = (event: WheelEvent) => {
         event.preventDefault();
+        cancel();
 
         setView(current =>
           zoomAt(
@@ -96,21 +100,23 @@ export function useMapViewport(baseViewBox: string) {
       svg.addEventListener("wheel", onWheel, { passive: false });
       detach.current = () => svg.removeEventListener("wheel", onWheel);
     },
-    [base],
+    [base, cancel],
   );
 
-  const zoomBy = useCallback(
-    (factor: number) =>
-      setView(current =>
-        zoomAt(current, base, factor, {
-          x: current.x + current.width / 2,
-          y: current.y + current.height / 2,
-        }),
-      ),
-    [base],
-  );
+  const zoomBy = (factor: number) =>
+    glide(
+      view,
+      zoomAt(view, base, factor, { x: view.x + view.width / 2, y: view.y + view.height / 2 }),
+    );
 
-  const onKeyDown = keyboardHandler(base, setView, zoomBy);
+  const reset = () => glide(view, base);
+  const onKeyDown = keyboardHandler(base, setView, zoomBy, reset);
+
+  // A finger or mouse landing on the map takes over from any glide in progress.
+  const onPointerDown: typeof gestures.handlers.onPointerDown = event => {
+    cancel();
+    gestures.handlers.onPointerDown(event);
+  };
 
   return {
     svgRef,
@@ -120,7 +126,7 @@ export function useMapViewport(baseViewBox: string) {
     wasDragged: gestures.wasDragged,
     zoomIn: () => zoomBy(BUTTON_STEP),
     zoomOut: () => zoomBy(1 / BUTTON_STEP),
-    reset: () => setView(base),
-    handlers: { ...gestures.handlers, onKeyDown },
+    reset,
+    handlers: { ...gestures.handlers, onPointerDown, onKeyDown },
   };
 }

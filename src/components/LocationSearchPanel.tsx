@@ -58,9 +58,11 @@ const selectStyles: StylesConfig<SelectValue> = {
   control: (baseStyles: CSSObjectWithLabel, { isFocused }) => ({
     ...baseStyles,
     backgroundColor: "var(--surface)",
-    borderColor: isFocused ? "var(--accent-border)" : "var(--border)",
+    borderColor: isFocused ? "var(--accent)" : "var(--border)",
     borderRadius: "8px",
-    boxShadow: "none",
+    // react-select suppresses the input's own outline, so the ring is drawn here.
+    boxShadow: isFocused ? "0 0 0 1px var(--accent)" : "none",
+    transition: "border-color 130ms, box-shadow 130ms",
     padding: "6px 6px",
     "&:hover": { borderColor: "var(--accent-border)" },
   }),

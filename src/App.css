@@ -38,12 +38,23 @@
 
   .dashboard-page__controls {
     grid-area: controls;
-    position: sticky;
-    top: var(--space-5);
   }
 
   .dashboard-page__results {
     grid-area: results;
+  }
+}
+
+/*
+ * The rail stays put while the results scroll — but only where the whole rail
+ * fits, or its bottom levers sit below the fold and no amount of scrolling
+ * brings a stuck element back into view. On a shorter screen it scrolls with
+ * the page like anything else.
+ */
+@media (width >= 1040px) and (height >= 1000px) {
+  .dashboard-page__controls {
+    position: sticky;
+    top: var(--space-5);
   }
 }
 
@@ -107,14 +118,15 @@
   margin-bottom: var(--space-2);
 }
 
-.scenario-panel__summary {
+.scenario-panel__summary-text {
   align-items: center;
-  cursor: pointer;
-  display: flex;
+  display: inline-flex;
   gap: var(--space-2);
+  vertical-align: middle;
 }
 
 .scenario-panel__flag {
+  animation: rise var(--dur-2) var(--ease) both;
   background: var(--accent-bg);
   border-radius: 999px;
   color: var(--accent);
@@ -333,6 +345,10 @@ details.scenario-panel[open] .scenario-panel__summary {
   margin-top: var(--space-2);
 }
 
+.metric-card__delta {
+  transition: color var(--dur-2) var(--ease);
+}
+
 .metric-card__delta--positive {
   color: var(--positive);
 }
@@ -493,11 +509,35 @@ details.scenario-panel[open] .scenario-panel__summary {
   pointer-events: all;
 }
 
+/* Always one line tall, so hovering the chart does not shove the details
+   below it down and back. */
 .chart__readout {
   color: var(--text-h);
   font-size: var(--text-xs);
   font-variant-numeric: tabular-nums;
   margin-top: var(--space-1);
+  min-height: 1.5em;
+}
+
+/* The projection line draws itself in when it first appears; changes to its
+   shape afterwards are immediate, because they follow the slider. */
+.chart__line {
+  animation: draw var(--dur-3) var(--ease) both;
+  stroke-dasharray: 1;
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.chart__band {
+  animation: fade-in var(--dur-3) var(--ease) both;
 }
 
 /* Errors ------------------------------------------------------------------ */
@@ -542,11 +582,19 @@ details.scenario-panel[open] .scenario-panel__summary {
 }
 
 .choropleth__svg {
+  animation: fade-in var(--dur-3) var(--ease) both;
   cursor: grab;
   display: block;
   height: auto;
   /* The map owns dragging and pinching, so the browser must not also scroll. */
   touch-action: none;
+  width: 100%;
+}
+
+/* Stands in for the map while its geometry is on its way, at the same shape. */
+.choropleth__skeleton {
+  aspect-ratio: 800 / 560;
+  max-width: 620px;
   width: 100%;
 }
 
@@ -583,6 +631,12 @@ details.scenario-panel[open] .scenario-panel__summary {
   cursor: pointer;
   stroke: var(--surface);
   stroke-width: 0.5;
+  /* Switching metric recolours every area; a crossfade makes the change
+     legible as a change rather than a flash. */
+  transition:
+    fill var(--dur-2) var(--ease),
+    stroke var(--dur-1) var(--ease),
+    stroke-width var(--dur-1) var(--ease);
 
   &:hover {
     stroke: var(--text-h);
@@ -715,7 +769,8 @@ details.scenario-panel[open] .scenario-panel__summary {
   color: var(--positive);
 }
 
-.sensitivity__basis--assumption {
+.sensitivity__basis--assumption,
+.sensitivity__basis--mixed {
   color: var(--caution);
 }
 
@@ -735,6 +790,9 @@ details.scenario-panel[open] .scenario-panel__summary {
   opacity: 0.4;
   position: absolute;
   top: 0;
+  transition:
+    left var(--dur-2) var(--ease),
+    width var(--dur-2) var(--ease);
 }
 
 /* The central estimate, so each bar reads as movement away from the answer. */
@@ -743,6 +801,7 @@ details.scenario-panel[open] .scenario-panel__summary {
   bottom: -2px;
   position: absolute;
   top: -2px;
+  transition: left var(--dur-2) var(--ease);
   width: 1px;
 }
 
@@ -830,6 +889,15 @@ details.scenario-panel[open] .scenario-panel__summary {
     border: none;
     color: var(--accent);
   }
+
+  &:hover .dashboard-page__back-arrow {
+    transform: translateX(-3px);
+  }
+}
+
+.dashboard-page__back-arrow {
+  display: inline-block;
+  transition: transform var(--dur-1) var(--ease);
 }
 
 /* Countdown --------------------------------------------------------------- */
@@ -841,12 +909,10 @@ details.scenario-panel[open] .scenario-panel__summary {
   display: grid;
   gap: var(--space-5);
   padding: var(--space-5);
+}
 
-  @media (width >= 860px) {
-    align-items: start;
-    grid-template-columns: minmax(0, 1fr) minmax(280px, 22rem);
-    gap: var(--space-6);
-  }
+.countdown__lead {
+  max-width: 72ch;
 }
 
 .countdown__eyebrow {
@@ -906,6 +972,8 @@ details.scenario-panel[open] .scenario-panel__summary {
 }
 
 .countdown__next {
+  animation: rise var(--dur-3) var(--ease) both;
+  animation-delay: var(--dur-2);
   background: var(--accent-bg);
   border-radius: var(--radius-sm);
   color: var(--text-h);
@@ -922,12 +990,6 @@ details.scenario-panel[open] .scenario-panel__summary {
 .countdown__timeline {
   border-top: 1px solid var(--border);
   padding-top: var(--space-4);
-
-  @media (width >= 860px) {
-    border-left: 1px solid var(--border);
-    border-top: none;
-    padding: 0 0 0 var(--space-5);
-  }
 }
 
 .countdown__timeline-title {
@@ -938,38 +1000,109 @@ details.scenario-panel[open] .scenario-panel__summary {
   text-transform: uppercase;
 }
 
+/*
+ * The key dates as a timeline: dots on a line, with the line filled up to
+ * where the campaign has got to. Narrow screens run it down the page; wide
+ * ones run it across, which is the shape a schedule actually has.
+ * list-style: none strips list semantics in Safari; role="list" in the markup
+ * puts them back, so the rule here is only visual.
+ */
 .milestones {
   display: grid;
-  gap: var(--space-1);
   list-style: none;
   margin: var(--space-3) 0 0;
   padding: 0;
 }
 
 .milestones__item {
-  align-items: baseline;
-  border-radius: var(--radius-sm);
+  align-items: start;
+  column-gap: var(--space-3);
   display: grid;
-  gap: var(--space-3);
-  grid-template-columns: 4.2rem minmax(0, 1fr) auto;
-  padding: var(--space-2);
+  grid-template-areas:
+    "dot date label when"
+    "dot .    detail .";
+  grid-template-columns: 14px 4.2rem minmax(0, 1fr) auto;
+  padding: var(--space-2) 0;
+  position: relative;
+}
+
+/* The connecting line, one segment per item so it starts and ends on a dot. */
+.milestones__item::before {
+  background: var(--border);
+  bottom: 0;
+  content: "";
+  left: 6px;
+  position: absolute;
+  top: 0;
+  width: 2px;
+}
+
+.milestones__item:first-child::before {
+  top: calc(var(--space-2) + 7px);
+}
+
+.milestones__item:last-child::before {
+  bottom: auto;
+  height: calc(var(--space-2) + 7px);
+}
+
+.milestones__item--past::before {
+  background: var(--accent);
+}
+
+.milestones__dot {
+  background: var(--surface);
+  border: 2px solid var(--border-strong);
+  border-radius: 50%;
+  grid-area: dot;
+  height: 14px;
+  margin-top: 0.15em;
+  position: relative;
+  transition:
+    background-color var(--dur-2) var(--ease),
+    border-color var(--dur-2) var(--ease);
+  width: 14px;
+  z-index: 1;
+}
+
+.milestones__item--past .milestones__dot {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.milestones__item--next .milestones__dot {
+  animation: ring 2.4s var(--ease) infinite;
+  border-color: var(--accent);
+}
+
+@keyframes ring {
+  from {
+    box-shadow: 0 0 0 0 var(--accent-border);
+  }
+
+  to {
+    box-shadow: 0 0 0 9px transparent;
+  }
 }
 
 .milestones__date {
   color: var(--text-muted);
   font-size: var(--text-xs);
   font-variant-numeric: tabular-nums;
+  grid-area: date;
 }
 
 .milestones__label {
   color: var(--text-h);
   font-size: var(--text-sm);
+  grid-area: label;
 }
 
 .milestones__detail {
   color: var(--text-muted);
   display: block;
   font-size: var(--text-xs);
+  grid-area: detail;
   margin-top: 2px;
 }
 
@@ -977,21 +1110,83 @@ details.scenario-panel[open] .scenario-panel__summary {
   color: var(--text);
   font-size: var(--text-xs);
   font-variant-numeric: tabular-nums;
+  grid-area: when;
   text-align: right;
   white-space: nowrap;
 }
 
-.milestones__item--past {
-  opacity: 0.55;
+.milestones__item--past .milestones__label,
+.milestones__item--past .milestones__date {
+  color: var(--text-muted);
 }
 
-.milestones__item--next {
-  background: var(--accent-bg);
+.milestones__item--past .milestones__label {
+  text-decoration: line-through;
+  text-decoration-color: var(--border-strong);
 }
 
 .milestones__item--next .milestones__when {
   color: var(--accent);
   font-weight: 600;
+}
+
+/* Across the card once there is room for seven columns of it. */
+@media (width >= 860px) {
+  .milestones {
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+    grid-template-rows: auto auto auto auto;
+    margin-top: var(--space-4);
+  }
+
+  /* Each item borrows the list's four rows, so a label that wraps in one
+     column does not push its date and days out of line with the others. */
+  .milestones__item {
+    grid-row: 1 / -1;
+    grid-template-areas:
+      "dot"
+      "date"
+      "label"
+      "when";
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: subgrid;
+    justify-items: center;
+    padding: 0 var(--space-1);
+    row-gap: var(--space-1);
+    text-align: center;
+  }
+
+  .milestones__item::before {
+    bottom: auto;
+    height: 2px;
+    left: 0;
+    right: 0;
+    top: 6px;
+    width: auto;
+  }
+
+  .milestones__item:first-child::before {
+    left: 50%;
+    top: 6px;
+  }
+
+  .milestones__item:last-child::before {
+    height: 2px;
+    right: 50%;
+  }
+
+  .milestones__dot {
+    margin-top: 0;
+  }
+
+  /* The next deadline's detail is already in the callout above. */
+  .milestones__detail {
+    display: none;
+  }
+
+  .milestones__when {
+    text-align: center;
+  }
 }
 
 /* Electorate directory ---------------------------------------------------- */
@@ -1059,6 +1254,24 @@ details.scenario-panel[open] .scenario-panel__summary {
   margin-top: var(--space-2);
 }
 
+/* Cards arrive in a short cascade, the first dozen staggered and the rest
+   together, so a long list does not keep the reader waiting on the tail. */
+.directory__grid > * {
+  animation: rise var(--dur-3) var(--ease) both;
+  animation-delay: calc(min(var(--i, 0), 11) * 28ms);
+}
+
+.directory__skeleton {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 21rem), 1fr));
+  margin-top: var(--space-4);
+}
+
+.directory__skeleton > * {
+  height: 13rem;
+}
+
 /* District card ----------------------------------------------------------- */
 
 .district {
@@ -1108,10 +1321,6 @@ details.scenario-panel[open] .scenario-panel__summary {
   /* Kept together rather than stretched apart when the card takes a full row. */
   max-width: 32rem;
   padding-top: var(--space-3);
-}
-
-.district__flag {
-  color: var(--text-muted);
 }
 
 .district__areas {
@@ -1205,6 +1414,13 @@ details.scenario-panel[open] .scenario-panel__summary {
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
 }
 
+/* Why a card is in a filtered list, when the reason is a suburb inside it. */
+.district__match {
+  color: var(--accent);
+  font-size: var(--text-xs);
+  margin-top: var(--space-2);
+}
+
 .district__region {
   color: var(--text-muted);
   font-size: var(--text-xs);
@@ -1212,4 +1428,68 @@ details.scenario-panel[open] .scenario-panel__summary {
   letter-spacing: 0.03em;
   margin-top: 2px;
   text-transform: uppercase;
+}
+
+/* How a district last voted ------------------------------------------------ */
+
+/*
+ * Every party is drawn identically. A party colour here would make the page
+ * look like it were arguing for one of them, and the bar already carries the
+ * only thing being measured — how far the winner was above an even split —
+ * through its length, on one scale across the state.
+ */
+.held {
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-3);
+}
+
+.held__line {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.held__party {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-h);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  padding: 2px var(--space-2);
+}
+
+.held__margin {
+  color: var(--text-h);
+  font-size: var(--text-md);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.held__safeness {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+.held__track {
+  background: var(--surface-2);
+  border-radius: 999px;
+  height: 4px;
+  margin-top: var(--space-2);
+  overflow: hidden;
+}
+
+.held__fill {
+  animation: grow var(--dur-3) var(--ease) both;
+  background: var(--map-3);
+  height: 100%;
+  min-width: 3px;
+  transform-origin: left;
+}
+
+.held__member {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  margin-top: var(--space-2);
 }

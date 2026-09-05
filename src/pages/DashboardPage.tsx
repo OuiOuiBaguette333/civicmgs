@@ -20,11 +20,14 @@ export function DashboardPage({ scenario, onBack }: DashboardPageProps) {
     <main className="dashboard-page">
       <header className="dashboard-page__header">
         <button className="dashboard-page__back" onClick={onBack} type="button">
-          ← Districts and election dates
+          <span className="dashboard-page__back-arrow" aria-hidden="true">
+            ←
+          </span>{" "}
+          Districts and election dates
         </button>
 
-        <p className="dashboard-page__eyebrow">CivicLens MVP</p>
-        <h1>Victorian suburb snapshot</h1>
+        <p className="dashboard-page__eyebrow">CivicLens</p>
+        <h1 tabIndex={-1}>Victorian suburb snapshot</h1>
         <p>
           Move a policy lever and CivicLens projects it onto the census figures for this suburb
           using published research, as a range with its working shown. Where no research supports a
@@ -45,7 +48,7 @@ export function DashboardPage({ scenario, onBack }: DashboardPageProps) {
           onHorizonChange={scenario.setHorizonYears}
           commitmentYears={scenario.commitmentYears}
           onCommitmentYearsChange={scenario.setCommitmentYears}
-          onReset={scenario.resetLevers}
+          onReset={scenario.reset}
         />
 
         <SimulatorPanel

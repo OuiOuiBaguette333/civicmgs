@@ -5,25 +5,44 @@ import {
   formatMilestoneDate,
   nextActionableMilestone,
 } from "@data/elections";
+import { useCountUp } from "@hooks/useCountUp";
 
 const plural = (days: number) => (Math.abs(days) === 1 ? "day" : "days");
 
 const countLabel = (days: number) => (days === 0 ? "today" : `${days} ${plural(days)}`);
 
-function CountdownFigure({ days }: { days: number }) {
+/** As a sentence: "today", not "in today". */
+const whenLabel = (days: number) => (days === 0 ? "today" : `in ${countLabel(days)}`);
+
+function todayLine(election: Election, now: Date) {
+  if (now.getTime() >= Date.parse(election.pollsClose)) return "Polls have closed.";
+  if (now.getTime() >= Date.parse(election.at)) return "Polls are open now, until 6 pm.";
+
+  return "Election day. Polls open at 8 am.";
+}
+
+function CountdownFigure({ election, now }: { election: Election; now: Date }) {
+  const days = daysUntil(election.at, now);
+
   if (days < 0) return <p className="countdown__called">This election has been held.</p>;
 
   if (days === 0) {
-    return (
-      <p className="countdown__called countdown__called--today">
-        Polls are open today, 8 am to 6 pm.
-      </p>
-    );
+    return <p className="countdown__called countdown__called--today">{todayLine(election, now)}</p>;
   }
+
+  return <DaysToGo days={days} />;
+}
+
+function DaysToGo({ days }: { days: number }) {
+  const shown = useCountUp(days);
 
   return (
     <p className="countdown__figure">
-      <span className="countdown__days">{days}</span>
+      {/* The counting is decoration; assistive tech hears the settled number once. */}
+      <span className="countdown__days" aria-hidden="true">
+        {shown}
+      </span>
+      <span className="visually-hidden">{days}</span>
       <span className="countdown__unit">{plural(days)} to go</span>
     </p>
   );
@@ -34,7 +53,7 @@ function MilestoneList({ election, now }: { election: Election; now: Date }) {
   const upcoming = nextActionableMilestone(election, now);
 
   return (
-    <ol className="milestones">
+    <ol className="milestones" role="list">
       {election.milestones
         .toSorted((a, b) => Date.parse(a.at) - Date.parse(b.at))
         .map(milestone => {
@@ -48,6 +67,7 @@ function MilestoneList({ election, now }: { election: Election; now: Date }) {
               }`}
               key={`${milestone.at}-${milestone.label}`}
             >
+              <span className="milestones__dot" aria-hidden="true" />
               <span className="milestones__date">{formatMilestoneDate(milestone.at)}</span>
 
               <span className="milestones__label">
@@ -71,7 +91,6 @@ interface ElectionCountdownProps {
 }
 
 export function ElectionCountdown({ election, now }: ElectionCountdownProps) {
-  const days = daysUntil(election.at, now);
   const upcoming = nextActionableMilestone(election, now);
 
   return (
@@ -81,13 +100,13 @@ export function ElectionCountdown({ election, now }: ElectionCountdownProps) {
         <h2 className="countdown__name">{election.name}</h2>
         <p className="countdown__date">{formatElectionDate(election.at)}</p>
 
-        <CountdownFigure days={days} />
+        <CountdownFigure election={election} now={now} />
 
         <p className="countdown__body">{election.body}</p>
 
         {upcoming && (
           <p className="countdown__next">
-            <strong>{upcoming.label}</strong> in {countLabel(daysUntil(upcoming.at, now))}.
+            <strong>{upcoming.label}</strong> {whenLabel(daysUntil(upcoming.at, now))}.
             {upcoming.detail && ` ${upcoming.detail}`}
           </p>
         )}

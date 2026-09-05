@@ -1,6 +1,7 @@
 import { ElectorateCard } from "@components/ElectorateCard";
 import { type ElectorateData, useElectorates } from "@hooks/useElectorates";
 import type { ElectorateSummary } from "@model/electorates";
+import { marginOf, seatByDistrict } from "@model/seats";
 import type { Location } from "@types";
 import type { Demographic } from "@utils/demographics";
 import { useMemo, useState } from "react";
@@ -9,8 +10,20 @@ import { useMemo, useState } from "react";
 const byMetric = (metric: Demographic) => (a: ElectorateSummary, b: ElectorateSummary) =>
   (b.figures[metric] ?? -Infinity) - (a.figures[metric] ?? -Infinity);
 
+/** Districts with no recorded result sort last rather than as ultra-marginal. */
+const marginOfDistrict = (electorate: ElectorateSummary) => {
+  const seat = seatByDistrict.get(electorate.name);
+
+  return seat ? marginOf(seat) : Infinity;
+};
+
 const SORTS = {
   name: { label: "Name (A–Z)", compare: (a, b) => a.name.localeCompare(b.name) },
+  margin: {
+    label: "Most marginal",
+    compare: (a: ElectorateSummary, b: ElectorateSummary) =>
+      marginOfDistrict(a) - marginOfDistrict(b),
+  },
   population: { label: "Largest population", compare: byMetric("population") },
   income: {
     label: "Highest median income",
@@ -28,10 +41,21 @@ const SORT_KEYS = Object.keys(SORTS) as SortKey[];
 
 const ALL_REGIONS = "all";
 
+/** The suburbs inside a district whose names contain the search. */
+const matchingSuburbs = (
+  electorate: ElectorateSummary,
+  names: Map<string, string>,
+  needle: string,
+) =>
+  electorate.areas
+    .map(code => names.get(code) ?? code)
+    .filter(name => name.toLowerCase().includes(needle))
+    .toSorted((a, b) => a.localeCompare(b));
+
 /** A district matches on its own name or on any suburb inside it. */
 const matches = (electorate: ElectorateSummary, names: Map<string, string>, needle: string) =>
   electorate.name.toLowerCase().includes(needle) ||
-  electorate.areas.some(code => names.get(code)?.toLowerCase().includes(needle));
+  matchingSuburbs(electorate, names, needle).length > 0;
 
 interface FilterProps {
   label: string;
@@ -94,7 +118,7 @@ function Controls(props: ControlsProps) {
 
       <Filter
         id="directory-region"
-        label="Council region"
+        label="Legislative Council region"
         onChange={props.onRegionChange}
         options={[{ value: ALL_REGIONS, label: "All regions" }, ...props.regions]}
         value={props.region}
@@ -129,14 +153,14 @@ function Directory({ data, onSelectArea }: DirectoryProps) {
     [data],
   );
 
-  const visible = useMemo(() => {
-    const needle = query.trim().toLowerCase();
+  const needle = query.trim().toLowerCase();
 
+  const visible = useMemo(() => {
     return data.electorates
       .filter(electorate => region === ALL_REGIONS || electorate.region === region)
       .filter(electorate => !needle || matches(electorate, data.names, needle))
       .toSorted(SORTS[sort].compare);
-  }, [data, query, region, sort]);
+  }, [data, needle, region, sort]);
 
   return (
     <>
@@ -156,13 +180,16 @@ function Directory({ data, onSelectArea }: DirectoryProps) {
       </p>
 
       <div className="directory__grid">
-        {visible.map(electorate => (
+        {visible.map((electorate, index) => (
           <ElectorateCard
             electorate={electorate}
+            index={index}
             figures={data.figures}
+            matched={needle ? matchingSuburbs(electorate, data.names, needle) : []}
             key={electorate.code}
             names={data.names}
             onSelectArea={onSelectArea}
+            seat={seatByDistrict.get(electorate.name)}
           />
         ))}
       </div>
@@ -179,13 +206,32 @@ export function ElectorateDirectory({
 }: {
   onSelectArea: DirectoryProps["onSelectArea"];
 }) {
-  const state = useElectorates();
+  const { state, retry } = useElectorates();
+
+  if (state.status === "failed") {
+    return (
+      <p className="directory__status" role="status">
+        The district figures could not be loaded.{" "}
+        <button type="button" onClick={retry}>
+          Try again
+        </button>
+      </p>
+    );
+  }
 
   if (state.status === "loading") {
     return (
-      <p className="directory__status" role="status">
-        Loading districts…
-      </p>
+      <>
+        <p className="visually-hidden" role="status">
+          Loading districts…
+        </p>
+
+        <div className="directory__skeleton" aria-hidden="true">
+          {Array.from({ length: 8 }, (_, index) => (
+            <div className="skeleton" key={index} />
+          ))}
+        </div>
+      </>
     );
   }
 

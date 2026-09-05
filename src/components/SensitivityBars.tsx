@@ -6,9 +6,25 @@ interface SensitivityBarsProps {
   rows: Sensitivity[];
   central: number;
   format: DemographicFormat;
+  /** Whether the projection is held at the edge of the scale. */
+  pinned: boolean;
 }
 
+const BASIS_LABELS: Record<Sensitivity["basis"], string> = {
+  evidence: "from the study",
+  assumption: "our assumption",
+  mixed: "study, with our floor",
+};
+
 const percent = (value: number) => `${(value * 100).toFixed(2)}%`;
+
+/**
+ * A bar with no width means one of two very different things: the assumption
+ * has no leverage yet, or the answer is already at the edge of the scale and
+ * cannot move whatever the assumption does.
+ */
+const flatReason = (pinned: boolean) =>
+  pinned ? "held at the limit of the scale" : "no effect at this horizon";
 
 /**
  * One bar per assumption, spanning where the answer lands when that assumption
@@ -19,7 +35,7 @@ const percent = (value: number) => `${(value * 100).toFixed(2)}%`;
  * the time elapsed since it ended is short and a year either way is a large
  * share of it; later the phase-in takes over.
  */
-export function SensitivityBars({ rows, central, format }: SensitivityBarsProps) {
+export function SensitivityBars({ rows, central, format, pinned }: SensitivityBarsProps) {
   if (rows.length === 0) return null;
 
   const domain = sensitivityDomain(rows, central);
@@ -37,7 +53,7 @@ export function SensitivityBars({ rows, central, format }: SensitivityBarsProps)
           <p className="sensitivity__label">
             {row.label}
             <span className={`sensitivity__basis sensitivity__basis--${row.basis}`}>
-              {row.basis === "evidence" ? "from the study" : "our assumption"}
+              {BASIS_LABELS[row.basis]}
             </span>
           </p>
 
@@ -52,7 +68,7 @@ export function SensitivityBars({ rows, central, format }: SensitivityBarsProps)
 
           <p className="sensitivity__range">
             {row.spread === 0
-              ? "no effect at this horizon"
+              ? flatReason(pinned)
               : `${formatValue(row.min, format)} to ${formatValue(row.max, format)}`}
             <span className="sensitivity__note"> · {row.note}</span>
           </p>

@@ -1,6 +1,7 @@
 import { CommitmentRow } from "@components/CommitmentRow";
 import { CopyLinkButton } from "@components/CopyLinkButton";
 import { SliderRow } from "@components/SliderRow";
+import { DEFAULT_COMMITMENT_YEARS } from "@model/cost";
 import { effectsForLever } from "@model/effects";
 import {
   LEVER_MAX,
@@ -12,7 +13,7 @@ import {
   type LeverId,
   WELL_EVIDENCED_CHANGE,
 } from "@model/levers";
-import { HORIZONS } from "@model/project";
+import { DEFAULT_HORIZON, HORIZONS } from "@model/project";
 
 interface PolicyScenarioPanelProps {
   leverChanges: LeverChanges;
@@ -83,7 +84,12 @@ export function PolicyScenarioPanel({
   onReset,
   ...levers
 }: PolicyScenarioPanelProps) {
-  const isModified = Object.values(levers.leverChanges).some(change => change !== 0);
+  // Reset returns the horizon and the commitment period too, so it is offered
+  // whenever any of them has moved, not only the levers.
+  const isModified =
+    Object.values(levers.leverChanges).some(change => change !== 0) ||
+    horizonYears !== DEFAULT_HORIZON ||
+    levers.commitmentYears !== DEFAULT_COMMITMENT_YEARS;
 
   return (
     <section className="scenario-panel">
@@ -102,8 +108,8 @@ export function PolicyScenarioPanel({
       </div>
 
       <p className="scenario-panel__intro">
-        A sustained change in spending, projected onto the figures below using published research.
-        Every number is a range, and every range shows its working.
+        A sustained change in spending, projected onto the figures for this suburb using published
+        research. Every number is a range, and every range shows its working.
       </p>
 
       <div className="scenario-panel__horizon">

@@ -36,6 +36,12 @@ export interface Projection {
   unquantified: DirectionalEffect[];
   /** True when nothing the model knows about touches this metric. */
   unchanged: boolean;
+  /**
+   * True when the range ran into the edge of what the metric can be — 100% of
+   * a cohort, or a value below zero — and was held there. A flat range with
+   * this set is a ceiling, not an absence of effect.
+   */
+  pinned: boolean;
 }
 
 const BOUNDS: Record<DemographicFormat, { min: number; max: number }> = {
@@ -116,6 +122,7 @@ export function projectOutcome(
   const total = contributions.reduce((running, { band }) => addBands(running, band), NO_CHANGE);
   const { min, max } = BOUNDS[DEMOGRAPHICS_META[outcome].format];
   const bound = (value: number) => clamp(baseline + value, min, max);
+  const ends = [total.low, total.central, total.high];
 
   return {
     outcome,
@@ -124,6 +131,7 @@ export function projectOutcome(
     contributions,
     unquantified: active.filter(effect => !isQuantified(effect)),
     unchanged: active.length === 0,
+    pinned: ends.some(value => bound(value) !== baseline + value),
   };
 }
 
@@ -167,7 +175,8 @@ export function projectSeries(
   const steps = Math.max(Math.round(horizonYears), 1);
 
   return Array.from({ length: steps + 1 }, (_, step) => {
-    const yearsAhead = (step / steps) * horizonYears;
+    // Multiplying last keeps whole-number horizons on whole-number years.
+    const yearsAhead = step * (horizonYears / steps);
     const { projected } = projectOutcome(outcome, baseline, levers, yearsAhead, effects);
 
     return { yearsAhead, ...projected };

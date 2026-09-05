@@ -49,6 +49,7 @@ export function SliderRow({
           step={step}
           value={value}
           id={sliderId}
+          aria-valuetext={`${value}%`}
           onChange={event => onChange(event.target.valueAsNumber)}
         />
 
@@ -67,7 +68,9 @@ export function SliderRow({
 
       {children}
 
-      {warning && <p className="slider-row__warning">{warning}</p>}
+      <p className="slider-row__warning" role="status">
+        {warning}
+      </p>
     </fieldset>
   );
 }

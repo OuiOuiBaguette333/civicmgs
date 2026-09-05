@@ -161,24 +161,24 @@ export function MetricsComparisonSection({
         <p>{YEAR} figures from the ABS regional dataset, compared against Victoria as a whole.</p>
       </header>
 
-      {cards.every(card => card.value === undefined) && (
+      {cards.every(card => card.value === undefined) ? (
         <p className="metrics-section__status" role="status">
           The ABS publishes no figures for this area. Small and unusual areas are suppressed to
           protect privacy.
         </p>
+      ) : (
+        <div className="metrics-section__group">
+          <h3>Demographics</h3>
+
+          <MetricsGrid
+            cards={cards}
+            projections={projections}
+            leverChanges={leverChanges}
+            horizonYears={horizonYears}
+            showProjections={showProjections}
+          />
+        </div>
       )}
-
-      <div className="metrics-section__group">
-        <h3>Demographics</h3>
-
-        <MetricsGrid
-          cards={cards}
-          projections={projections}
-          leverChanges={leverChanges}
-          horizonYears={horizonYears}
-          showProjections={showProjections}
-        />
-      </div>
     </section>
   );
 }

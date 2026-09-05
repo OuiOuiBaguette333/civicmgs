@@ -1,7 +1,10 @@
+import type { Seat } from "@data/seats2022";
 import { type AreaFigures, type ElectorateSummary, isAveragedMedian } from "@model/electorates";
+import { marginOf, safenessOf, WIDEST_MARGIN } from "@model/seats";
 import type { Location } from "@types";
 import { type Demographic, DEMOGRAPHICS_META } from "@utils/demographics";
 import formatValue from "@utils/format";
+import type { CSSProperties } from "react";
 
 /** The figures a district leads with, and the ones shown under each suburb. */
 export const HEADLINE_METRICS: Demographic[] = [
@@ -17,7 +20,7 @@ export const HEADLINE_METRICS: Demographic[] = [
  */
 const SHORT_LABELS: Partial<Record<Demographic, string>> = {
   population: "People",
-  medianEquivalisedHouseholdIncome: "Median income",
+  medianEquivalisedHouseholdIncome: "Median income (weekly)",
   unemploymentRate: "Unemployment",
   year12Completion: "Year 12",
 };
@@ -27,14 +30,51 @@ const shortLabel = (metric: Demographic) => SHORT_LABELS[metric] ?? DEMOGRAPHICS
 const show = (metric: Demographic, value?: number) =>
   value === undefined ? "—" : formatValue(value, DEMOGRAPHICS_META[metric].format);
 
-function Figure({ metric, value }: { metric: Demographic; value?: number }) {
+interface FigureProps {
+  metric: Demographic;
+  value?: number;
+  /**
+   * Whether this figure is a district roll-up rather than a published number.
+   * The dagger marks a median that has been averaged, which is only true of the
+   * aggregate: a suburb's own median is exactly what the ABS published.
+   */
+  aggregated?: boolean;
+}
+
+function Figure({ metric, value, aggregated = false }: FigureProps) {
   return (
     <div className="figure">
       <dt className="figure__label">
         {shortLabel(metric)}
-        {isAveragedMedian(metric) && <span className="figure__flag">&nbsp;†</span>}
+        {aggregated && isAveragedMedian(metric) && <span className="figure__flag">&nbsp;†</span>}
       </dt>
       <dd className="figure__value">{show(metric, value)}</dd>
+    </div>
+  );
+}
+
+/**
+ * How the district last voted. Every party is drawn the same way, deliberately:
+ * a party colour here would make the page look like it was arguing for someone.
+ * The bar carries magnitude through its length alone, on one scale across the
+ * state, so the hue means nothing and cannot be read as a side.
+ */
+function Held({ seat }: { seat: Seat }) {
+  const margin = marginOf(seat);
+
+  return (
+    <div className="held">
+      <p className="held__line">
+        <span className="held__party">{seat.party}</span>
+        <span className="held__margin">{margin.toFixed(1)}%</span>
+        <span className="held__safeness">{safenessOf(margin)}</span>
+      </p>
+
+      <div className="held__track">
+        <div className="held__fill" style={{ width: `${(margin / WIDEST_MARGIN) * 100}%` }} />
+      </div>
+
+      <p className="held__member">{seat.member}, elected 2022</p>
     </div>
   );
 }
@@ -52,7 +92,7 @@ function SuburbList({ electorate, names, figures, onSelectArea }: SuburbListProp
     .toSorted((a, b) => a.name.localeCompare(b.name));
 
   return (
-    <ul className="suburbs">
+    <ul className="suburbs" role="list">
       {suburbs.map(suburb => (
         <li className="suburbs__item" key={suburb.code}>
           <button
@@ -80,11 +120,27 @@ function SuburbList({ electorate, names, figures, onSelectArea }: SuburbListProp
   );
 }
 
-export function ElectorateCard({ electorate, names, figures, onSelectArea }: SuburbListProps) {
+interface ElectorateCardProps extends SuburbListProps {
+  seat?: Seat;
+  /** Suburbs that matched a search, so a card can say why it is in the list. */
+  matched?: string[];
+  /** Position in the list, which sets how long the card waits before it appears. */
+  index?: number;
+}
+
+export function ElectorateCard({
+  electorate,
+  names,
+  figures,
+  seat,
+  matched = [],
+  index = 0,
+  onSelectArea,
+}: ElectorateCardProps) {
   const { population } = electorate.figures;
 
   return (
-    <article className="district">
+    <article className="district" style={{ "--i": index } as CSSProperties}>
       <header className="district__header">
         <h3 className="district__name">{electorate.name}</h3>
 
@@ -96,11 +152,20 @@ export function ElectorateCard({ electorate, names, figures, onSelectArea }: Sub
           {electorate.areas.length} {electorate.areas.length === 1 ? "suburb" : "suburbs"}
           {electorate.withoutFigures > 0 && ` · ${electorate.withoutFigures} without figures`}
         </p>
+
+        {matched.length > 0 && (
+          <p className="district__match">
+            Includes {matched.slice(0, 3).join(", ")}
+            {matched.length > 3 && ` and ${matched.length - 3} more`}
+          </p>
+        )}
       </header>
+
+      {seat && <Held seat={seat} />}
 
       <dl className="district__stats">
         {HEADLINE_METRICS.map(metric => (
-          <Figure key={metric} metric={metric} value={electorate.figures[metric]} />
+          <Figure key={metric} metric={metric} value={electorate.figures[metric]} aggregated />
         ))}
       </dl>
 

@@ -30,12 +30,16 @@ export function MetricCard({
     <article className="metric-card">
       <p className="metric-card__label">{label}</p>
 
-      <p
-        className={`metric-card__value${value === undefined ? " metric-card__value--empty" : ""}`}
-        aria-live={live ? "polite" : undefined}
-      >
+      <p className={`metric-card__value${value === undefined ? " metric-card__value--empty" : ""}`}>
         {value ?? "Not available"}
       </p>
+
+      {/* A bare number announced on its own says nothing about which figure moved. */}
+      {live && (
+        <p className="visually-hidden" aria-live="polite">
+          {label}: {value ?? "not available"}
+        </p>
+      )}
 
       {note && <p className="metric-card__note">{note}</p>}
 
@@ -48,6 +52,12 @@ export function MetricCard({
           {delta && (
             <span className={`metric-card__delta metric-card__delta--${delta.tone}`}>
               {delta.label}
+              {/* Whether above is good is the point of the colour, so it is said too. */}
+              {delta.tone !== "neutral" && (
+                <span className="visually-hidden">
+                  {delta.tone === "positive" ? " (better)" : " (worse)"}
+                </span>
+              )}
             </span>
           )}
         </div>

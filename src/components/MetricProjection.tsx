@@ -1,6 +1,6 @@
 import { ProjectionChart } from "@components/ProjectionChart";
 import { SensitivityBars } from "@components/SensitivityBars";
-import type { DirectionalEffect } from "@model/effects";
+import type { DirectionalEffect, Effect } from "@model/effects";
 import {
   type Citation,
   EVIDENCE_LABELS,
@@ -12,6 +12,12 @@ import type { Contribution, Projection, SeriesPoint } from "@model/project";
 import type { Sensitivity } from "@model/sensitivity";
 import { DEMOGRAPHICS_META } from "@utils/demographics";
 import formatValue from "@utils/format";
+
+/**
+ * One lever can carry more than one study for the same outcome, so the lever
+ * alone would collide; the study is what makes a row unique.
+ */
+const effectKey = (effect: Effect) => `${effect.lever}-${effect.outcome}-${effect.citation.url}`;
 
 interface MetricProjectionProps {
   projection: Projection;
@@ -136,17 +142,17 @@ export function MetricProjection({
         <details className="projection__details">
           <summary>Where this comes from</summary>
 
-          <ul>
+          <ul role="list">
             {contributions.map(contribution => (
               <ContributionDetail
-                key={contribution.effect.lever}
+                key={effectKey(contribution.effect)}
                 contribution={contribution}
                 targetYear={targetYear}
               />
             ))}
 
             {unquantified.map(effect => (
-              <DirectionDetail key={effect.lever} effect={effect} />
+              <DirectionDetail key={effectKey(effect)} effect={effect} />
             ))}
           </ul>
         </details>
@@ -156,7 +162,12 @@ export function MetricProjection({
         <details className="projection__details">
           <summary>What moves this answer</summary>
 
-          <SensitivityBars rows={sensitivity} central={projected.central} format={format} />
+          <SensitivityBars
+            rows={sensitivity}
+            central={projected.central}
+            format={format}
+            pinned={projection.pinned}
+          />
         </details>
       )}
     </div>

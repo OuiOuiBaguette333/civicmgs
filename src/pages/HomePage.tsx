@@ -17,7 +17,7 @@ export function HomePage({ onSelectArea, onOpenDashboard }: HomePageProps) {
     <main className="home-page">
       <header className="home-page__header">
         <p className="home-page__eyebrow">CivicLens</p>
-        <h1>What would a promise actually do to your suburb?</h1>
+        <h1 tabIndex={-1}>What would a promise actually do to your suburb?</h1>
 
         <p className="home-page__intro">
           Victorian census figures, district by district. Choose a suburb to move a policy lever and
@@ -49,6 +49,16 @@ export function HomePage({ onSelectArea, onOpenDashboard }: HomePageProps) {
         </p>
 
         <ElectorateDirectory onSelectArea={onSelectArea} />
+
+        <p className="home-page__footnote">
+          Seats show the 2022 election result: the party that won, the margin — the winner’s share
+          of the final two candidates, less 50 — and the member elected then. A margin under six
+          points is called marginal, up to ten fairly safe, and wider than that safe, which is the
+          usual convention rather than a prediction. They are not the current chamber — by-elections
+          and changes of party since have moved it to roughly Labor 54, Coalition 29 and a
+          crossbench of 5. The margin is the part that keeps its meaning, because it says how
+          contestable the district was when it was last tested.
+        </p>
 
         <p className="home-page__footnote">
           † A median is not an average. The ABS publishes a median per suburb, not the incomes
