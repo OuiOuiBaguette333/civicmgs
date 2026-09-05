@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "data:shapes": "node --max-old-space-size=2048 --experimental-strip-types scripts/buildSA2Shapes.ts",
+    "data:metrics": "node --experimental-strip-types scripts/buildSA2Metrics.ts",
+    "data:electorates": "node --max-old-space-size=2048 --experimental-strip-types scripts/buildElectorates.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "fmt": "oxfmt",
@@ -21,15 +24,23 @@
     "react-select": "^5.10.2"
   },
   "devDependencies": {
+    "@types/d3-geo": "^3.1.1",
     "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@types/topojson-client": "^3.1.5",
+    "@types/topojson-server": "^3.0.4",
+    "@types/topojson-simplify": "^3.0.3",
     "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.5.0",
     "csvtojson": "^2.0.14",
+    "d3-geo": "^3.1.1",
     "oxfmt": "^0.48.0",
     "oxlint": "^1.62.0",
     "postcss": "^8.5.10",
+    "topojson-client": "^3.1.0",
+    "topojson-server": "^3.0.1",
+    "topojson-simplify": "^3.0.3",
     "typescript": "~6.0.2",
     "vite": "^8.0.10",
     "vitest": "^4.1.11"

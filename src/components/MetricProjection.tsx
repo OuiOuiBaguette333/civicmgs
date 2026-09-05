@@ -1,4 +1,5 @@
 import { ProjectionChart } from "@components/ProjectionChart";
+import { SensitivityBars } from "@components/SensitivityBars";
 import type { DirectionalEffect } from "@model/effects";
 import {
   type Citation,
@@ -8,6 +9,7 @@ import {
 } from "@model/evidence";
 import { LEVERS_BY_ID } from "@model/levers";
 import type { Contribution, Projection, SeriesPoint } from "@model/project";
+import type { Sensitivity } from "@model/sensitivity";
 import { DEMOGRAPHICS_META } from "@utils/demographics";
 import formatValue from "@utils/format";
 
@@ -16,6 +18,7 @@ interface MetricProjectionProps {
   horizonYears: number;
   label: string;
   series: SeriesPoint[];
+  sensitivity: Sensitivity[];
 }
 
 function overallStrength({ contributions, unquantified }: Projection): EvidenceStrength {
@@ -94,6 +97,7 @@ export function MetricProjection({
   horizonYears,
   label,
   series,
+  sensitivity,
 }: MetricProjectionProps) {
   const { contributions, unquantified, projected } = projection;
   const { format } = DEMOGRAPHICS_META[projection.outcome];
@@ -145,6 +149,14 @@ export function MetricProjection({
               <DirectionDetail key={effect.lever} effect={effect} />
             ))}
           </ul>
+        </details>
+      )}
+
+      {sensitivity.length > 0 && (
+        <details className="projection__details">
+          <summary>What moves this answer</summary>
+
+          <SensitivityBars rows={sensitivity} central={projected.central} format={format} />
         </details>
       )}
     </div>

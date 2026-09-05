@@ -43,6 +43,8 @@ export function useScenario() {
   }, [location, levers, horizonYears, commitmentYears]);
 
   return {
+    /** Whether the page was opened on a shared link that names a suburb. */
+    openedWithLocation: initial.sa2 !== undefined,
     location,
     setLocation,
     levers,
@@ -58,3 +60,5 @@ export function useScenario() {
     },
   };
 }
+
+export type Scenario = ReturnType<typeof useScenario>;
