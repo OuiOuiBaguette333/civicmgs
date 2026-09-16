@@ -99,11 +99,24 @@ const shortFormat = new Intl.DateTimeFormat("en-AU", {
   month: "short",
 });
 
+const timeFormat = new Intl.DateTimeFormat("en-AU", {
+  timeZone: MELBOURNE,
+  hour: "numeric",
+  hour12: true,
+});
+
 /** Spelled out, in Melbourne's timezone: "Saturday 28 November 2026". */
 export const formatElectionDate = (at: string) => longFormat.format(new Date(at));
 
+/** The same, for a date rather than an instant string: today's dateline. */
+export const formatDay = (date: Date) => longFormat.format(date);
+
 /** Compact, for a list of dates that share a year: "28 Nov". */
 export const formatMilestoneDate = (at: string) => shortFormat.format(new Date(at));
+
+/** The clock time, for two milestones that fall on one day: "6 pm". */
+export const formatMilestoneTime = (at: string) =>
+  timeFormat.format(new Date(at)).replaceAll(/\s+/gu, " ");
 
 /** Whole calendar days from `now` until `target`; negative once it has passed. */
 export const daysUntil = (target: string, now: Date) =>

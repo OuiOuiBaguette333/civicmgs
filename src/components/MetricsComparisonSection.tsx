@@ -2,7 +2,8 @@ import { MetricCard, type MetricCardProps } from "@components/MetricCard";
 import { MetricProjection } from "@components/MetricProjection";
 import { YEAR } from "@data/abs";
 import { type RegionDemographics, useRegionDemographics } from "@hooks/useRegionDemographics";
-import type { LeverChanges } from "@model/levers";
+import { effectsForLever } from "@model/effects";
+import { type LeverChanges, LEVERS, LEVERS_BY_ID } from "@model/levers";
 import { hasAnyLeverChange, project, type Projection, projectSeries } from "@model/project";
 import { sensitivities } from "@model/sensitivity";
 import type { Location } from "@types";
@@ -51,7 +52,7 @@ function buildCards(
       stateValue:
         stateBaseline === undefined
           ? undefined
-          : `Victoria${meta.comparable ? "" : " (total)"}: ${formatValue(stateBaseline, meta.format)}`,
+          : `Victoria${meta.comparable ? "" : " (total)"} ${formatValue(stateBaseline, meta.format)}`,
       // A suburb count against a state total is not a comparison, so metrics
       // marked incomparable get the context line without a difference.
       delta:
@@ -68,6 +69,46 @@ interface MetricsGridProps {
   leverChanges: LeverChanges;
   horizonYears: number;
   showProjections: boolean;
+}
+
+/** Levers the model cannot project, named so their stillness is explained. */
+const UNLINKED_LEVERS = LEVERS.filter(lever => effectsForLever(lever).length === 0).map(
+  lever => LEVERS_BY_ID[lever].label,
+);
+
+const listed = (items: string[]) =>
+  items.length <= 1 ? items.join("") : `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`;
+
+/**
+ * The ninth cell of the grid. Eight figures in three columns leave a gap, and
+ * the gap is where the reading of the ranges belongs.
+ */
+function RangesNote({
+  showProjections,
+  horizonYears,
+}: Pick<MetricsGridProps, "showProjections" | "horizonYears">) {
+  return (
+    <div className="metric-card metric-card--note">
+      <p className="caps">{showProjections ? "About these ranges" : "Projections"}</p>
+
+      <p className="metric-card__prose">
+        {showProjections ? (
+          <>
+            Ranges are the low and high estimates of the studies behind each link, applied to this
+            suburb’s own figures with the lag and phase-in the model assumes; nothing arrives before
+            the first cohort exposed to the change has been counted.
+            {UNLINKED_LEVERS.length > 0 &&
+              ` ${listed(UNLINKED_LEVERS)} ${UNLINKED_LEVERS.length === 1 ? "moves" : "move"} nothing because no study links ${UNLINKED_LEVERS.length === 1 ? "it" : "them"} to a figure shown here.`}
+          </>
+        ) : (
+          <>
+            Move a policy lever and each figure it touches gains a projection {horizonYears} years
+            ahead: a range, the studies it rests on, and what would move the answer.
+          </>
+        )}
+      </p>
+    </div>
+  );
 }
 
 function MetricsGrid({
@@ -106,6 +147,8 @@ function MetricsGrid({
           />
         );
       })}
+
+      <RangesNote showProjections={showProjections} horizonYears={horizonYears} />
     </div>
   );
 }
@@ -131,7 +174,12 @@ export function MetricsComparisonSection({
 
   if (!location || state.status !== "ready") {
     return (
-      <section className="metrics-section">
+      <section className="metrics-section" aria-labelledby="metrics-title">
+        <div className="rule-head">
+          <h2 id="metrics-title">{location ? `${location.name} against Victoria` : "Figures"}</h2>
+          <p className="caps">{YEAR} census · ABS regional dataset</p>
+        </div>
+
         <p className="metrics-section__status" role="status">
           {statusMessage(state)}
         </p>
@@ -155,11 +203,11 @@ export function MetricsComparisonSection({
   const showProjections = hasAnyLeverChange(leverChanges);
 
   return (
-    <section className="metrics-section">
-      <header className="metrics-section__header">
-        <h2>{location.name} vs Victoria</h2>
-        <p>{YEAR} figures from the ABS regional dataset, compared against Victoria as a whole.</p>
-      </header>
+    <section className="metrics-section" aria-labelledby="metrics-title">
+      <div className="rule-head">
+        <h2 id="metrics-title">{location.name} against Victoria</h2>
+        <p className="caps">{YEAR} census · ABS regional dataset</p>
+      </div>
 
       {cards.every(card => card.value === undefined) ? (
         <p className="metrics-section__status" role="status">
@@ -167,17 +215,13 @@ export function MetricsComparisonSection({
           protect privacy.
         </p>
       ) : (
-        <div className="metrics-section__group">
-          <h3>Demographics</h3>
-
-          <MetricsGrid
-            cards={cards}
-            projections={projections}
-            leverChanges={leverChanges}
-            horizonYears={horizonYears}
-            showProjections={showProjections}
-          />
-        </div>
+        <MetricsGrid
+          cards={cards}
+          projections={projections}
+          leverChanges={leverChanges}
+          horizonYears={horizonYears}
+          showProjections={showProjections}
+        />
       )}
     </section>
   );

@@ -21,8 +21,8 @@ describe("createDelta", () => {
   const percent = { format: "percent", direction: "higher" } as const;
 
   it("describes the size and direction of the gap", () => {
-    expect(createDelta(61.4, 61.8, percent).label).toBe("0.4 pp below Victoria");
-    expect(createDelta(63.2, 61.8, percent).label).toBe("1.4 pp above Victoria");
+    expect(createDelta(61.4, 61.8, percent).label).toBe("0.4 pp below");
+    expect(createDelta(63.2, 61.8, percent).label).toBe("1.4 pp above");
   });
 
   it("calls two figures the same when they display the same", () => {
@@ -47,7 +47,7 @@ describe("createDelta", () => {
     const age = { format: "years", direction: "neutral" } as const;
 
     expect(createDelta(34.2, 37.9, age)).toStrictEqual({
-      label: "3.7 years below Victoria",
+      label: "3.7 years below",
       tone: "neutral",
     });
   });

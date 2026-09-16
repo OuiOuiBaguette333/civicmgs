@@ -28,7 +28,7 @@ export function MetricCard({
 }: MetricCardProps) {
   return (
     <article className="metric-card">
-      <p className="metric-card__label">{label}</p>
+      <p className="metric-card__label caps">{label}</p>
 
       <p className={`metric-card__value${value === undefined ? " metric-card__value--empty" : ""}`}>
         {value ?? "Not available"}

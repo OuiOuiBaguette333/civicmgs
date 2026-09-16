@@ -67,8 +67,10 @@ export function createDelta(
     return { label: "Same as Victoria", tone: "neutral" };
   }
 
+  // The state's own figure sits beside this on the page, so the label only
+  // says which way and by how much: "0.4 pp below", next to "Victoria 61.8%".
   const isAbove = difference > 0;
-  const label = `${size} ${isAbove ? "above" : "below"} Victoria`;
+  const label = `${size} ${isAbove ? "above" : "below"}`;
 
   if (direction === "neutral") return { label, tone: "neutral" };
 

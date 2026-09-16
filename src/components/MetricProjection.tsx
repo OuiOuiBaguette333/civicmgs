@@ -98,6 +98,33 @@ function DirectionDetail({ effect }: { effect: DirectionalEffect }) {
   );
 }
 
+/** Every study behind the number, quantified or direction-only. */
+function Sources({ projection, targetYear }: { projection: Projection; targetYear: number }) {
+  const { contributions, unquantified } = projection;
+
+  if (contributions.length === 0 && unquantified.length === 0) return null;
+
+  return (
+    <details className="projection__details">
+      <summary>Where this comes from</summary>
+
+      <ul role="list">
+        {contributions.map(contribution => (
+          <ContributionDetail
+            key={effectKey(contribution.effect)}
+            contribution={contribution}
+            targetYear={targetYear}
+          />
+        ))}
+
+        {unquantified.map(effect => (
+          <DirectionDetail key={effectKey(effect)} effect={effect} />
+        ))}
+      </ul>
+    </details>
+  );
+}
+
 export function MetricProjection({
   projection,
   horizonYears,
@@ -105,26 +132,31 @@ export function MetricProjection({
   series,
   sensitivity,
 }: MetricProjectionProps) {
-  const { contributions, unquantified, projected } = projection;
+  const { contributions, projected } = projection;
   const { format } = DEMOGRAPHICS_META[projection.outcome];
   const strength = overallStrength(projection);
   const targetYear = new Date().getFullYear() + horizonYears;
 
   const low = formatValue(projected.low, format);
   const high = formatValue(projected.high, format);
+  const central = formatValue(projected.central, format);
 
   return (
     <div className="projection">
       <p className="projection__head">
-        <span>By {targetYear}</span>
-        <span className={`projection__badge projection__badge--${strength}`}>
+        <span className="projection__year caps">By {targetYear}</span>
+        <span className={`projection__badge caps projection__badge--${strength}`}>
           {EVIDENCE_LABELS[strength]}
         </span>
       </p>
 
       {contributions.length > 0 ? (
         <>
-          <p className="projection__range">{low === high ? low : `${low} – ${high}`}</p>
+          <p className="projection__range">
+            {low === high ? low : `${low} to ${high}`}
+            {/* The central estimate is the line on the chart; the range is the band. */}
+            {low !== high && <span className="projection__central">central {central}</span>}
+          </p>
 
           <ProjectionChart
             points={series}
@@ -138,25 +170,7 @@ export function MetricProjection({
         <p className="projection__empty">{EVIDENCE_NOTES[strength]}</p>
       )}
 
-      {(contributions.length > 0 || unquantified.length > 0) && (
-        <details className="projection__details">
-          <summary>Where this comes from</summary>
-
-          <ul role="list">
-            {contributions.map(contribution => (
-              <ContributionDetail
-                key={effectKey(contribution.effect)}
-                contribution={contribution}
-                targetYear={targetYear}
-              />
-            ))}
-
-            {unquantified.map(effect => (
-              <DirectionDetail key={effectKey(effect)} effect={effect} />
-            ))}
-          </ul>
-        </details>
-      )}
+      <Sources projection={projection} targetYear={targetYear} />
 
       {sensitivity.length > 0 && (
         <details className="projection__details">

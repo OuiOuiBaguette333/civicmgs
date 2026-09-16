@@ -95,6 +95,19 @@ remove.
 - Some measures are suppressed by the ABS for small or unusual areas. Those render
   as "Not available" rather than zero.
 
+## Design
+
+The pages are set like a broadsheet: paper and ink, rules rather than boxes, one
+neutral accent. Newsreader (with its optical-size axis) carries the headlines and
+every figure; Source Sans 3 carries reading text, labels and controls. Both ship
+with the build from `@fontsource-variable`, so no font service is called. The
+ochre accent marks what is live or chosen — the next deadline, a selected area, a
+moved slider, a seat margin, the projection line — and is never a party colour:
+every party is drawn identically, or the lens becomes a campaign. Status colour
+appears only on a comparison against Victoria, and only where a metric declares
+a better direction. Tokens live in `src/index.css`, with a dark scheme keyed to
+`prefers-color-scheme`.
+
 ## Building the map data
 
 The map ships pre-projected SVG paths rather than boundary geometry, so the app

@@ -83,7 +83,7 @@ function Readout({ hovered, selected, describe }: ReadoutProps) {
 
 function MapStatus({ state, retry }: { state: "loading" | "failed"; retry: () => void }) {
   return (
-    <section className="choropleth">
+    <section className="choropleth" aria-label="Map">
       <p className="metrics-section__status" role="status">
         {state === "loading" ? (
           <>
@@ -108,8 +108,10 @@ function MetricPicker({
   onMetricChange,
 }: Pick<ChoroplethMapProps, "metric" | "onMetricChange">) {
   return (
-    <div className="choropleth__head">
-      <label htmlFor="map-metric">Map</label>
+    <div className="choropleth__metric">
+      <label className="caps" htmlFor="map-metric">
+        Map
+      </label>
 
       <select
         id="map-metric"
@@ -129,13 +131,14 @@ function MetricPicker({
 function MapControls({ viewport }: { viewport: ReturnType<typeof useMapViewport> }) {
   return (
     <div className="choropleth__controls">
-      <button type="button" onClick={viewport.zoomIn} aria-label="Zoom in">
+      <button className="quiet" type="button" onClick={viewport.zoomIn} aria-label="Zoom in">
         +
       </button>
-      <button type="button" onClick={viewport.zoomOut} aria-label="Zoom out">
+      <button className="quiet" type="button" onClick={viewport.zoomOut} aria-label="Zoom out">
         &minus;
       </button>
       <button
+        className="quiet"
         type="button"
         onClick={viewport.reset}
         aria-label="Reset zoom to show the whole state"
@@ -221,8 +224,11 @@ export function ChoroplethMap({
   };
 
   return (
-    <section className="choropleth">
-      <MetricPicker metric={metric} onMetricChange={onMetricChange} />
+    <section className="choropleth" aria-label="Map">
+      <div className="choropleth__head">
+        <MetricPicker metric={metric} onMetricChange={onMetricChange} />
+        {measured.length > 0 && <MapControls viewport={viewport} />}
+      </div>
 
       {measured.length === 0 ? (
         <p className="metrics-section__status" role="status">
@@ -253,13 +259,12 @@ export function ChoroplethMap({
                 detail={detail}
               />
             </svg>
-
-            <MapControls viewport={viewport} />
           </div>
 
-          <Readout hovered={hovered} selected={selected} describe={describe} />
-
-          <Legend breaks={breaks} metric={metric} />
+          <div className="choropleth__foot">
+            <Readout hovered={hovered} selected={selected} describe={describe} />
+            <Legend breaks={breaks} metric={metric} />
+          </div>
         </>
       )}
     </section>

@@ -20,8 +20,8 @@ export const HEADLINE_METRICS: Demographic[] = [
  */
 const SHORT_LABELS: Partial<Record<Demographic, string>> = {
   population: "People",
-  medianEquivalisedHouseholdIncome: "Median income (weekly)",
-  unemploymentRate: "Unemployment",
+  medianEquivalisedHouseholdIncome: "Household income",
+  unemploymentRate: "Unemployed",
   year12Completion: "Year 12",
 };
 
@@ -45,8 +45,11 @@ function Figure({ metric, value, aggregated = false }: FigureProps) {
   return (
     <div className="figure">
       <dt className="figure__label">
-        {shortLabel(metric)}
-        {aggregated && isAveragedMedian(metric) && <span className="figure__flag">&nbsp;†</span>}
+        {/* One run of text, so the dagger wraps with the words rather than beside them. */}
+        <span>
+          {shortLabel(metric)}
+          {aggregated && isAveragedMedian(metric) && <span className="figure__flag">&nbsp;†</span>}
+        </span>
       </dt>
       <dd className="figure__value">{show(metric, value)}</dd>
     </div>
@@ -65,7 +68,7 @@ function Held({ seat }: { seat: Seat }) {
   return (
     <div className="held">
       <p className="held__line">
-        <span className="held__party">{seat.party}</span>
+        <span className="held__party caps">{seat.party}</span>
         <span className="held__margin">{margin.toFixed(1)}%</span>
         <span className="held__safeness">{safenessOf(margin)}</span>
       </p>
@@ -96,7 +99,7 @@ function SuburbList({ electorate, names, figures, onSelectArea }: SuburbListProp
       {suburbs.map(suburb => (
         <li className="suburbs__item" key={suburb.code}>
           <button
-            className="suburbs__name"
+            className="link-button suburbs__name"
             onClick={() => onSelectArea({ code: suburb.code, name: suburb.name })}
             type="button"
           >
@@ -144,7 +147,7 @@ export function ElectorateCard({
       <header className="district__header">
         <h3 className="district__name">{electorate.name}</h3>
 
-        {electorate.region && <p className="district__region">{electorate.region}</p>}
+        {electorate.region && <p className="district__region caps">{electorate.region}</p>}
 
         <p className="district__meta">
           {population === undefined ? "Population not published" : show("population", population)}

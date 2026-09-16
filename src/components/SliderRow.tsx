@@ -1,5 +1,9 @@
 import { NumberBox } from "@components/NumberBox";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
+
+/** Where a value sits along the track, as a percentage for the CSS fill. */
+const along = (value: number, min: number, max: number) =>
+  `${((value - min) / (max - min)) * 100}%`;
 
 export interface SliderRowProps {
   /** Used to build the control ids, so it must be free of spaces. */
@@ -42,6 +46,8 @@ export function SliderRow({
           {label} change, slider
         </label>
 
+        {/* The track fills from zero to the thumb, so the stylesheet needs both
+            positions; a thumb resting on zero is drawn hollow. */}
         <input
           type="range"
           min={min}
@@ -49,21 +55,27 @@ export function SliderRow({
           step={step}
           value={value}
           id={sliderId}
+          className={value === 0 ? "at-zero" : undefined}
+          style={{ "--zero": along(0, min, max), "--pos": along(value, min, max) } as CSSProperties}
           aria-valuetext={`${value}%`}
           onChange={event => onChange(event.target.valueAsNumber)}
         />
 
-        <NumberBox
-          id={`box-${id}`}
-          label={`${label} change, percent`}
-          value={value}
-          min={min}
-          max={max}
-          step={step}
-          onChange={onChange}
-        />
+        <span className="slider-row__value">
+          <NumberBox
+            id={`box-${id}`}
+            label={`${label} change, percent`}
+            value={value}
+            min={min}
+            max={max}
+            step={step}
+            onChange={onChange}
+          />
 
-        <span aria-hidden="true">%</span>
+          <span className="slider-row__unit" aria-hidden="true">
+            %
+          </span>
+        </span>
       </div>
 
       {children}

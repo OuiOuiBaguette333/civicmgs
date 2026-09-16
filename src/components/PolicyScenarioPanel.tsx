@@ -92,15 +92,15 @@ export function PolicyScenarioPanel({
     levers.commitmentYears !== DEFAULT_COMMITMENT_YEARS;
 
   return (
-    <section className="scenario-panel">
-      <div className="scenario-panel__header">
-        <h2>Policy scenario</h2>
+    <section className="scenario-panel" aria-labelledby="scenario-title">
+      <div className="scenario-panel__header rule-head">
+        <h2 id="scenario-title">Policy scenario</h2>
 
         <div className="scenario-panel__actions">
           <CopyLinkButton />
 
           {isModified && (
-            <button type="button" onClick={onReset}>
+            <button className="quiet" type="button" onClick={onReset}>
               Reset
             </button>
           )}
@@ -113,7 +113,9 @@ export function PolicyScenarioPanel({
       </p>
 
       <div className="scenario-panel__horizon">
-        <label htmlFor="horizon">Project</label>
+        <label className="caps" htmlFor="horizon">
+          Project
+        </label>
 
         <select
           id="horizon"

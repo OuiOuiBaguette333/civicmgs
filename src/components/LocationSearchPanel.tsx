@@ -51,45 +51,90 @@ function getNoOptionsMessage({ inputValue }: { inputValue: string }) {
   return inputValue ? `Enter at least ${MIN_QUERY_LENGTH} characters` : "Enter a location...";
 }
 
-// react-select paints its own light-mode colours, so every surface it draws has
-// to be pointed back at the theme tokens or the whole control stays white in
-// dark mode.
+const serif = { fontFamily: "var(--serif)", fontSize: "1.375rem", lineHeight: 1.2 };
+
+// react-select paints its own boxed, light-mode control, so every surface it
+// draws is pointed back at the theme: the field becomes a line to write on,
+// like every other field on the page, and the menu takes the paper colour.
 const selectStyles: StylesConfig<SelectValue> = {
   control: (baseStyles: CSSObjectWithLabel, { isFocused }) => ({
     ...baseStyles,
-    backgroundColor: "var(--surface)",
-    borderColor: isFocused ? "var(--accent)" : "var(--border)",
-    borderRadius: "8px",
-    // react-select suppresses the input's own outline, so the ring is drawn here.
-    boxShadow: isFocused ? "0 0 0 1px var(--accent)" : "none",
+    backgroundColor: "transparent",
+    border: "0",
+    borderBottom: `1px solid ${isFocused ? "var(--accent)" : "var(--border-strong)"}`,
+    borderRadius: 0,
+    // react-select suppresses the input's own outline, so focus is the line
+    // turning to the accent and thickening.
+    boxShadow: isFocused ? "0 1px 0 var(--accent)" : "none",
+    cursor: "text",
+    minHeight: 0,
+    padding: "4px 0",
     transition: "border-color 130ms, box-shadow 130ms",
-    padding: "6px 6px",
-    "&:hover": { borderColor: "var(--accent-border)" },
+    "&:hover": { borderColor: "var(--accent)" },
   }),
-  input: (baseStyles: CSSObjectWithLabel) => ({ ...baseStyles, color: "var(--text-h)" }),
-  singleValue: (baseStyles: CSSObjectWithLabel) => ({ ...baseStyles, color: "var(--text-h)" }),
-  placeholder: (baseStyles: CSSObjectWithLabel) => ({ ...baseStyles, color: "var(--text)" }),
+  valueContainer: (baseStyles: CSSObjectWithLabel) => ({ ...baseStyles, padding: "2px 0" }),
+  input: (baseStyles: CSSObjectWithLabel) => ({
+    ...baseStyles,
+    ...serif,
+    color: "var(--text-h)",
+    margin: 0,
+    padding: 0,
+  }),
+  singleValue: (baseStyles: CSSObjectWithLabel) => ({
+    ...baseStyles,
+    ...serif,
+    color: "var(--text-h)",
+    margin: 0,
+  }),
+  placeholder: (baseStyles: CSSObjectWithLabel) => ({
+    ...baseStyles,
+    ...serif,
+    color: "var(--text-muted)",
+    fontStyle: "italic",
+    margin: 0,
+  }),
   menu: (baseStyles: CSSObjectWithLabel) => ({
     ...baseStyles,
-    backgroundColor: "var(--surface)",
-    border: "1px solid var(--border)",
-    boxShadow: "var(--shadow)",
+    backgroundColor: "var(--page)",
+    border: "1px solid var(--border-strong)",
+    borderRadius: 0,
+    boxShadow: "none",
+    marginTop: "4px",
   }),
   menuPortal: (baseStyles: CSSObjectWithLabel) => ({ ...baseStyles, zIndex: 20 }),
   option: (baseStyles: CSSObjectWithLabel, { isFocused }) => ({
     ...baseStyles,
     backgroundColor: isFocused ? "var(--accent-bg)" : "transparent",
     color: "var(--text-h)",
+    fontSize: "var(--text-md)",
     "&:active": { backgroundColor: "var(--accent-bg)" },
   }),
-  groupHeading: (baseStyles: CSSObjectWithLabel) => ({ ...baseStyles, color: "var(--text)" }),
+  groupHeading: (baseStyles: CSSObjectWithLabel) => ({
+    ...baseStyles,
+    color: "var(--text-muted)",
+    fontSize: "var(--text-xs)",
+    fontWeight: 600,
+    letterSpacing: "0.12em",
+  }),
   noOptionsMessage: (baseStyles: CSSObjectWithLabel) => ({ ...baseStyles, color: "var(--text)" }),
   loadingMessage: (baseStyles: CSSObjectWithLabel) => ({ ...baseStyles, color: "var(--text)" }),
-  indicatorSeparator: (baseStyles: CSSObjectWithLabel) => ({
+  indicatorSeparator: () => ({ display: "none" }),
+  dropdownIndicator: (baseStyles: CSSObjectWithLabel) => ({
     ...baseStyles,
-    backgroundColor: "var(--border)",
+    color: "var(--text-h)",
+    padding: "0 0 0 8px",
+    "&:hover": { color: "var(--accent)" },
   }),
-  dropdownIndicator: (baseStyles: CSSObjectWithLabel) => ({ ...baseStyles, color: "var(--text)" }),
+  clearIndicator: (baseStyles: CSSObjectWithLabel) => ({
+    ...baseStyles,
+    color: "var(--text-muted)",
+    padding: "0 4px",
+  }),
+  loadingIndicator: (baseStyles: CSSObjectWithLabel) => ({
+    ...baseStyles,
+    color: "var(--text-muted)",
+    padding: "0 4px",
+  }),
 };
 
 export function LocationSearchPanel({
@@ -102,18 +147,12 @@ export function LocationSearchPanel({
   };
 
   return (
-    <section className="location-panel">
-      <h2>Suburb input</h2>
+    <section className="location-panel" aria-labelledby="location-title">
+      <h2 className="caps" id="location-title">
+        Suburb
+      </h2>
 
-      <p>
-        Search for a{" "}
-        <a href={SA2_INFO_LINK} target="_blank" rel="noreferrer">
-          Statistical Area Level 2 (ABS)
-        </a>{" "}
-        in Victoria, which generally corresponds to a suburb.
-      </p>
-
-      <label className="location-panel__label" htmlFor="location-select">
+      <label className="visually-hidden" htmlFor="location-select">
         Statistical Area Level 2
       </label>
 
@@ -122,7 +161,7 @@ export function LocationSearchPanel({
         noOptionsMessage={getNoOptionsMessage}
         blurInputOnSelect
         inputId="location-select"
-        placeholder={null}
+        placeholder="Search by name"
         // The control rail scrolls, which would otherwise clip the open menu.
         menuPortalTarget={globalThis.document?.body}
         styles={selectStyles}
@@ -131,6 +170,14 @@ export function LocationSearchPanel({
           newValue && onSelectLocation({ code: newValue.value, name: newValue.label })
         }
       />
+
+      <p className="location-panel__note">
+        Search a{" "}
+        <a href={SA2_INFO_LINK} target="_blank" rel="noreferrer">
+          Statistical Area Level 2
+        </a>{" "}
+        in Victoria, which generally corresponds to a suburb.
+      </p>
     </section>
   );
 }
